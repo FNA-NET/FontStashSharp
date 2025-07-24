@@ -3,23 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-#if MONOGAME || FNA
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-#if ANDROID
-using System;
-using Microsoft.Xna.Framework.GamerServices;
-#endif
-#elif STRIDE
-using System.Threading.Tasks;
-using Stride.Engine;
-using Stride.Games;
-using Stride.Graphics;
-using Stride.Core.Mathematics;
-using Stride.Input;
-using Texture2D = Stride.Graphics.Texture;
-#endif
 
 namespace FontStashSharp.Samples
 {
@@ -38,19 +24,16 @@ namespace FontStashSharp.Samples
 	/// </summary>
 	public class Game1 : Game
 	{
-		private const int EffectAmount = 1;
+		private const int EffectAmount = 0;
 		private const int CharacterSpacing = 2;
 		private const int LineSpacing = 4;
 
-#if !STRIDE
 		private readonly GraphicsDeviceManager _graphics;
-#endif
 
 		public static Game1 Instance { get; private set; }
 
 		private SpriteBatch _spriteBatch;
 		private FontSystem _fontSystem;
-		private FontSystemEffect _currentEffect = FontSystemEffect.None;
 		private DynamicSpriteFont _font;
 
 		private Texture2D _white;
@@ -78,7 +61,6 @@ namespace FontStashSharp.Samples
 		{
 			Instance = this;
 
-#if MONOGAME || FNA
 			_graphics = new GraphicsDeviceManager(this)
 			{
 				PreferredBackBufferWidth = 1200,
@@ -86,36 +68,18 @@ namespace FontStashSharp.Samples
 			};
 
 			Window.AllowUserResizing = true;
-#endif
 
 			IsMouseVisible = true;
 		}
-
-#if STRIDE
-		public override void ConfirmRenderingSettings(bool gameCreation)
-		{
-			base.ConfirmRenderingSettings(gameCreation);
-
-			GraphicsDeviceManager.PreferredBackBufferWidth = 1200;
-			GraphicsDeviceManager.PreferredBackBufferHeight = 800;
-			GraphicsDeviceManager.PreferredColorSpace = ColorSpace.Gamma;
-		}
-#endif
 
 		/// <summary>
 		/// LoadContent will be called once per game and is the place to load
 		/// all of your content.
 		/// </summary>
-#if !STRIDE
 		protected override void LoadContent()
-#else
-		protected override Task LoadContent()
-#endif
 		{
 			// Create a new SpriteBatch, which can be used to draw textures.
 			_spriteBatch = new SpriteBatch(GraphicsDevice);
-
-			// TODO: use this.Content to load your game content here
 
 			// Simple
 			_fontSystem = new FontSystem();
@@ -123,19 +87,10 @@ namespace FontStashSharp.Samples
 			_fontSystem.AddFont(File.ReadAllBytes(@"Fonts/DroidSansJapanese.ttf"));
 			_fontSystem.AddFont(File.ReadAllBytes(@"Fonts/Symbola-Emoji.ttf"));
 
-#if MONOGAME || FNA
 			_white = new Texture2D(GraphicsDevice, 1, 1);
 			_white.SetData(new[] { Color.White });
-#elif STRIDE
-			_white = Texture2D.New2D(GraphicsDevice, 1, 1, false, PixelFormat.R8G8B8A8_UNorm_SRgb, TextureFlags.ShaderResource);
-			_white.SetData(GraphicsContext.CommandList, new[] { Color.White } );
-#endif
 
 			GC.Collect();
-
-#if STRIDE
-			return base.LoadContent();
-#endif
 		}
 
 		protected override void Update(GameTime gameTime)
@@ -147,19 +102,6 @@ namespace FontStashSharp.Samples
 			if (KeyboardUtils.IsPressed(Keys.Space))
 			{
 				_drawBackground = !_drawBackground;
-			}
-
-			if (KeyboardUtils.IsPressed(Keys.Tab))
-			{
-				var i = (int)_currentEffect;
-
-				++i;
-				if (i > (int)FontSystemEffect.Stroked)
-				{
-					i = 0;
-				}
-
-				_currentEffect = (FontSystemEffect)i;
 			}
 
 			if (KeyboardUtils.IsPressed(Keys.Enter))
@@ -177,7 +119,7 @@ namespace FontStashSharp.Samples
 
 		private void DrawString(string text, ref Vector2 cursor, Alignment alignment, Color[] glyphColors, Vector2 scale)
 		{
-			Vector2 dimensions = _font.MeasureString(text, effect: _currentEffect, effectAmount: EffectAmount);
+			Vector2 dimensions = _font.MeasureString(text);
 			Vector2 origin = AlignmentOrigin(alignment, dimensions);
 
 			if (_drawBackground)
@@ -188,7 +130,7 @@ namespace FontStashSharp.Samples
 					(int)Math.Round(dimensions.Y * scale.Y));
 				DrawRectangle(backgroundRect, Color.Green);
 
-				var glyphs = _font.GetGlyphs(text, cursor, origin, scale, effect: _currentEffect, effectAmount: EffectAmount);
+				var glyphs = _font.GetGlyphs(text, cursor, origin, scale);
 				foreach (var r in glyphs)
 				{
 					DrawRectangle(r.Bounds, Color.Gray);
@@ -196,16 +138,14 @@ namespace FontStashSharp.Samples
 			}
 
 			_spriteBatch.DrawString(_font, text, cursor, glyphColors,
-				scale: scale, origin: origin,
-				effect: _currentEffect, effectAmount: EffectAmount);
+				scale: scale, origin: origin);
 			cursor.Y += dimensions.Y + LineSpacing;
 		}
 
 		private void DrawString(string text, ref Vector2 cursor, Alignment alignment, Color color, Vector2 scale)
 		{
 			Vector2 dimensions = _font.MeasureString(text, 
-				characterSpacing: CharacterSpacing, lineSpacing: LineSpacing,
-				effect: _currentEffect, effectAmount: EffectAmount);
+				characterSpacing: CharacterSpacing, lineSpacing: LineSpacing);
 			Vector2 origin = AlignmentOrigin(alignment, dimensions);
 
 			if (_drawBackground)
@@ -217,8 +157,7 @@ namespace FontStashSharp.Samples
 				DrawRectangle(backgroundRect, Color.Green);
 
 				var glyphs = _font.GetGlyphs(text, cursor, origin, scale, 
-					characterSpacing: CharacterSpacing, lineSpacing: LineSpacing,
-					effect: _currentEffect, effectAmount: EffectAmount);
+					characterSpacing: CharacterSpacing, lineSpacing: LineSpacing);
 				foreach (var g in glyphs)
 				{
 					DrawRectangle(g.Bounds, Color.Gray);
@@ -226,8 +165,7 @@ namespace FontStashSharp.Samples
 			}
 
 			_spriteBatch.DrawString(_font, text, cursor, color, scale: scale, origin: origin,
-				characterSpacing: CharacterSpacing, lineSpacing: LineSpacing,
-				effect: _currentEffect, effectAmount: EffectAmount);
+				characterSpacing: CharacterSpacing, lineSpacing: LineSpacing);
 			cursor.Y += dimensions.Y + LineSpacing;
 		}
 
@@ -262,18 +200,8 @@ namespace FontStashSharp.Samples
 		/// <param name="gameTime">Provides a snapshot of timing values.</param>
 		protected override void Draw(GameTime gameTime)
 		{
-#if MONOGAME || FNA
 			GraphicsDevice.Clear(Color.CornflowerBlue);
 			TimeSpan total = gameTime.TotalGameTime;
-#elif STRIDE
-			// Clear screen
-			GraphicsContext.CommandList.Clear(GraphicsDevice.Presenter.BackBuffer, Color.CornflowerBlue);
-			GraphicsContext.CommandList.Clear(GraphicsDevice.Presenter.DepthStencilBuffer, DepthStencilClearOptions.DepthBuffer | DepthStencilClearOptions.Stencil);
-
-			// Set render target
-			GraphicsContext.CommandList.SetRenderTargetAndViewport(GraphicsDevice.Presenter.DepthStencilBuffer, GraphicsDevice.Presenter.BackBuffer);
-			TimeSpan total = gameTime.Total;
-#endif
 
 
 			Vector2 scale = _animatedScaling
@@ -281,17 +209,14 @@ namespace FontStashSharp.Samples
 				: Vector2.One;
 
 			// TODO: Add your drawing code here
-#if MONOGAME || FNA
 			_spriteBatch.Begin();
-#elif STRIDE
-			_spriteBatch.Begin(GraphicsContext);
-#endif
 
 			Vector2 cursor = Vector2.Zero;
 
 			// Render some text
 
 			_font = _fontSystem.GetFont(18);
+			DrawString("你好世界", ref cursor, Alignment.Left, scale);
 			DrawString("The quick いろは brown\nfox にほへ jumps over\nt🙌h📦e l👏a👏zy dog adfasoqiw yraldh ald halwdha ldjahw dlawe havbx get872rq", ref cursor, Alignment.Left, scale);
 
 			_font = _fontSystem.GetFont(30);
@@ -305,11 +230,7 @@ namespace FontStashSharp.Samples
 			DrawString("Left-Justified", ref columnCursor, Alignment.Left, new Vector2(.75f) * scale);
 
 
-#if !STRIDE
 			var width = GraphicsDevice.Viewport.Width;
-#else
-			var width = GraphicsDevice.Presenter.BackBuffer.Width;
-#endif
 
 			columnCursor = new Vector2(width / 2f, cursor.Y);
 			DrawString("Centered", ref columnCursor, Alignment.Center, new Vector2(1) * scale);

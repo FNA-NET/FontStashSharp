@@ -1,15 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-
-#if MONOGAME || FNA
 using Microsoft.Xna.Framework;
-#elif STRIDE
-using Stride.Core.Mathematics;
-#else
-using System.Drawing;
-using System.Numerics;
-using Color = FontStashSharp.FSColor;
-#endif
 
 namespace FontStashSharp.RichText
 {
@@ -25,8 +16,6 @@ namespace FontStashSharp.RichText
 
 		public SpriteFontBase Font { get; }
 		public TextStyle Style { get; set; }
-		public FontSystemEffect Effect { get; set; }
-		public int EffectAmount { get; set; }
 
 		public TextChunk(SpriteFontBase font, string text, Point size, Point? startPos)
 		{
@@ -118,7 +107,7 @@ namespace FontStashSharp.RichText
 
 		public override void Draw(FSRenderContext context, Vector2 position, Color color)
 		{
-			context.DrawText(Text, Font, position, color, Style, Effect, EffectAmount);
+			context.DrawText(Text, Font, position, color, Style);
 		}
 	}
 }

@@ -31,7 +31,7 @@ namespace FontStashSharp.Tests
 		[Test]
 		public void NumericParametersTest()
 		{
-			const string text = "/v[-8]Test/v4Test/vd/es[2]Test/edTest/eb3Test";
+			const string text = "/v[-8]Test/v4Test/vd/Test/Test/Test";
 
 			var fontSystem = TestsEnvironment.DefaultFontSystem;
 
@@ -50,16 +50,10 @@ namespace FontStashSharp.Tests
 
 			var textChunk = (TextChunk)chunks[2];
 			Assert.That(textChunk.VerticalOffset, Is.EqualTo(0));
-			Assert.That(textChunk.Effect, Is.EqualTo(FontSystemEffect.Stroked));
-			Assert.That(textChunk.EffectAmount, Is.EqualTo(2));
 
 			textChunk = (TextChunk)chunks[3];
-			Assert.That(textChunk.Effect, Is.EqualTo(FontSystemEffect.None));
-			Assert.That(textChunk.EffectAmount, Is.EqualTo(0));
 
 			textChunk = (TextChunk)chunks[4];
-			Assert.That(textChunk.Effect, Is.EqualTo(FontSystemEffect.Blurry));
-			Assert.That(textChunk.EffectAmount, Is.EqualTo(3));
 		}
 
 		[Test]
@@ -108,7 +102,7 @@ namespace FontStashSharp.Tests
 			var richTextLayout = new RichTextLayout
 			{
 				Font = fontSystem.GetFont(32),
-				Text = "/ebThis /es2is the /edfirst line. This /es2is the /edsecond line. This is the third line.",
+				Text = "This is the first line. This is the second line. This is the third line.",
 				Width = 260,
 				Height = 100,
 				VerticalSpacing = 8,

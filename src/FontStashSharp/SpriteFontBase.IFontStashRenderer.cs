@@ -1,17 +1,7 @@
 ﻿using FontStashSharp.Interfaces;
 using System.Text;
 using System;
-
-#if MONOGAME || FNA
 using Microsoft.Xna.Framework;
-#elif STRIDE
-using Stride.Core.Mathematics;
-using Stride.Graphics;
-#else
-using System.Numerics;
-using Matrix = System.Numerics.Matrix3x2;
-using Color = FontStashSharp.FSColor;
-#endif
 
 namespace FontStashSharp
 {
@@ -25,11 +15,7 @@ namespace FontStashSharp
 				return;
 			}
 
-#if MONOGAME || FNA || STRIDE
 			var white = GetWhite(renderer.GraphicsDevice);
-#else
-			var white = GetWhite(renderer.TextureManager);
-#endif
 
 			var start = Vector2.Zero;
 			if (textStyle == TextStyle.Strikethrough)
@@ -52,24 +38,17 @@ namespace FontStashSharp
 		private float DrawText(IFontStashRenderer renderer, TextColorSource source, Vector2 position,
 			float rotation, Vector2 origin, Vector2? sourceScale,
 			float layerDepth, float characterSpacing, float lineSpacing,
-			TextStyle textStyle, FontSystemEffect effect, int effectAmount)
+			TextStyle textStyle)
 		{
 			if (renderer == null)
 			{
 				throw new ArgumentNullException(nameof(renderer));
 			}
 
-#if MONOGAME || FNA || STRIDE
 			if (renderer.GraphicsDevice == null)
 			{
 				throw new ArgumentNullException("renderer.GraphicsDevice can't be null.");
 			}
-#else
-			if (renderer.TextureManager == null)
-			{
-				throw new ArgumentNullException("renderer.TextureManager can't be null.");
-			}
-#endif
 
 			if (source.IsNull) return 0.0f;
 
@@ -78,7 +57,7 @@ namespace FontStashSharp
 			Prepare(position, rotation, origin, ref scale, out transformation);
 
 			int ascent, lineHeight;
-			PreDraw(source.TextSource, effect, effectAmount, out ascent, out lineHeight);
+			PreDraw(source.TextSource, out ascent, out lineHeight);
 
 			var pos = new Vector2(0, ascent);
 
@@ -105,11 +84,7 @@ namespace FontStashSharp
 					continue;
 				}
 
-#if MONOGAME || FNA || STRIDE
-				var glyph = GetGlyph(renderer.GraphicsDevice, codepoint, effect, effectAmount);
-#else
-				var glyph = GetGlyph(renderer.TextureManager, codepoint, effect, effectAmount);
-#endif
+				var glyph = GetGlyph(renderer.GraphicsDevice, codepoint);
 
 				if (glyph == null)
 				{
@@ -169,9 +144,9 @@ namespace FontStashSharp
 		public float DrawText(IFontStashRenderer renderer, string text, Vector2 position, Color color,
 			float rotation = 0, Vector2 origin = default(Vector2), Vector2? scale = null,
 			float layerDepth = 0.0f, float characterSpacing = 0.0f, float lineSpacing = 0.0f,
-			TextStyle textStyle = TextStyle.None, FontSystemEffect effect = FontSystemEffect.None, int effectAmount = 0) =>
+			TextStyle textStyle = TextStyle.None) =>
 				DrawText(renderer, new TextColorSource(text, color), position, rotation, origin, scale,
-					layerDepth, characterSpacing, lineSpacing, textStyle, effect, effectAmount);
+					layerDepth, characterSpacing, lineSpacing, textStyle);
 
 		/// <summary>
 		/// Draws a text
@@ -189,9 +164,9 @@ namespace FontStashSharp
 		public float DrawText(IFontStashRenderer renderer, string text, Vector2 position, Color[] colors,
 			float rotation = 0, Vector2 origin = default(Vector2), Vector2? scale = null,
 			float layerDepth = 0.0f, float characterSpacing = 0.0f, float lineSpacing = 0.0f,
-			TextStyle textStyle = TextStyle.None, FontSystemEffect effect = FontSystemEffect.None, int effectAmount = 0) =>
+			TextStyle textStyle = TextStyle.None) =>
 				DrawText(renderer, new TextColorSource(text, colors), position, rotation, origin, scale, layerDepth,
-					characterSpacing, lineSpacing, textStyle, effect, effectAmount);
+					characterSpacing, lineSpacing, textStyle);
 
 		/// <summary>
 		/// Draws a text
@@ -209,9 +184,9 @@ namespace FontStashSharp
 		public float DrawText(IFontStashRenderer renderer, StringSegment text, Vector2 position, Color color,
 			float rotation = 0, Vector2 origin = default(Vector2), Vector2? scale = null,
 			float layerDepth = 0.0f, float characterSpacing = 0.0f, float lineSpacing = 0.0f,
-			TextStyle textStyle = TextStyle.None, FontSystemEffect effect = FontSystemEffect.None, int effectAmount = 0) =>
+			TextStyle textStyle = TextStyle.None) =>
 				DrawText(renderer, new TextColorSource(text, color), position, rotation, origin, scale, layerDepth,
-					characterSpacing, lineSpacing, textStyle, effect, effectAmount);
+					characterSpacing, lineSpacing, textStyle);
 
 		/// <summary>
 		/// Draws a text
@@ -229,9 +204,9 @@ namespace FontStashSharp
 		public float DrawText(IFontStashRenderer renderer, StringSegment text, Vector2 position, Color[] colors,
 			float rotation = 0, Vector2 origin = default(Vector2), Vector2? scale = null,
 			float layerDepth = 0.0f, float characterSpacing = 0.0f, float lineSpacing = 0.0f,
-			TextStyle textStyle = TextStyle.None, FontSystemEffect effect = FontSystemEffect.None, int effectAmount = 0) =>
+			TextStyle textStyle = TextStyle.None) =>
 				DrawText(renderer, new TextColorSource(text, colors), position, rotation, origin, scale, layerDepth,
-					characterSpacing, lineSpacing, textStyle, effect, effectAmount);
+					characterSpacing, lineSpacing, textStyle);
 
 		/// <summary>
 		/// Draws a text
@@ -249,9 +224,9 @@ namespace FontStashSharp
 		public float DrawText(IFontStashRenderer renderer, StringBuilder text, Vector2 position, Color color,
 			float rotation = 0, Vector2 origin = default(Vector2), Vector2? scale = null,
 			float layerDepth = 0.0f, float characterSpacing = 0.0f, float lineSpacing = 0.0f,
-			TextStyle textStyle = TextStyle.None, FontSystemEffect effect = FontSystemEffect.None, int effectAmount = 0) =>
+			TextStyle textStyle = TextStyle.None) =>
 				DrawText(renderer, new TextColorSource(text, color), position, rotation, origin, scale, layerDepth,
-					characterSpacing, lineSpacing, textStyle, effect, effectAmount);
+					characterSpacing, lineSpacing, textStyle);
 
 		/// <summary>
 		/// Draws a text
@@ -269,8 +244,8 @@ namespace FontStashSharp
 		public float DrawText(IFontStashRenderer renderer, StringBuilder text, Vector2 position, Color[] colors,
 			float rotation = 0, Vector2 origin = default(Vector2), Vector2? scale = null,
 			float layerDepth = 0.0f, float characterSpacing = 0.0f, float lineSpacing = 0.0f,
-			TextStyle textStyle = TextStyle.None, FontSystemEffect effect = FontSystemEffect.None, int effectAmount = 0) =>
+			TextStyle textStyle = TextStyle.None) =>
 				DrawText(renderer, new TextColorSource(text, colors), position, rotation, origin, scale, layerDepth,
-					characterSpacing, lineSpacing, textStyle, effect, effectAmount);
+					characterSpacing, lineSpacing, textStyle);
 	}
 }

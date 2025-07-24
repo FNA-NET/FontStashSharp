@@ -1,23 +1,12 @@
 ﻿using Cyotek.Drawing.BitmapFont;
-using FontStashSharp.Interfaces;
 using StbImageSharp;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-#if MONOGAME || FNA
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-#elif STRIDE
-using Stride.Core.Mathematics;
-using Stride.Graphics;
-using Texture2D = Stride.Graphics.Texture;
-#else
-using System.Drawing;
-using Texture2D = System.Object;
-using Color = FontStashSharp.FSColor;
-#endif
 
 namespace FontStashSharp
 {
@@ -64,11 +53,7 @@ namespace FontStashSharp
 			return result;
 		}
 
-#if MONOGAME || FNA || STRIDE
-		protected internal override FontGlyph GetGlyph(GraphicsDevice device, int codepoint, FontSystemEffect effect, int effectAmount)
-#else
-		protected internal override FontGlyph GetGlyph(ITexture2DManager device, int codepoint, FontSystemEffect effect, int effectAmount)
-#endif
+		protected internal override FontGlyph GetGlyph(GraphicsDevice device, int codepoint)
 		{
 			var result = InternalGetGlyph(codepoint);
 			if (result == null && DefaultCharacter != null)
@@ -78,7 +63,7 @@ namespace FontStashSharp
 			return result;
 		}
 
-		internal override void PreDraw(TextSource source, FontSystemEffect effect, int effectAmount, out int ascent, out int lineHeight)
+		internal override void PreDraw(TextSource source, out int ascent, out int lineHeight)
 		{
 			ascent = 0;
 			lineHeight = LineHeight;
@@ -177,11 +162,7 @@ namespace FontStashSharp
 			return FromBMFont(bmFont, textureGetter);
 		}
 
-#if MONOGAME || FNA || STRIDE
 		public static StaticSpriteFont FromBMFont(string data, Func<string, Stream> imageStreamOpener, GraphicsDevice device)
-#else
-		public static StaticSpriteFont FromBMFont(string data, Func<string, Stream> imageStreamOpener, ITexture2DManager textureManager)
-#endif
 		{
 			var bmFont = LoadBMFont(data);
 
@@ -215,13 +196,8 @@ namespace FontStashSharp
 						}
 					}
 
-#if MONOGAME || FNA || STRIDE
 					var texture = Texture2DManager.CreateTexture(device, image.Width, image.Height);
 					Texture2DManager.SetTextureData(texture, new Rectangle(0, 0, image.Width, image.Height), image.Data);
-#else
-					var texture = textureManager.CreateTexture(image.Width, image.Height);
-					textureManager.SetTextureData(texture, new Rectangle(0, 0, image.Width, image.Height), image.Data);
-#endif
 
 					textures[fileName] = texture;
 				}

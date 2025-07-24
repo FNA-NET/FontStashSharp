@@ -1,22 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Text;
 using System;
-using FontStashSharp.Interfaces;
 using System.Linq;
-
-#if MONOGAME || FNA
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-#elif STRIDE
-using Stride.Core.Mathematics;
-using Stride.Graphics;
-using Texture2D = Stride.Graphics.Texture;
-#else
-using System.Drawing;
-using System.Numerics;
-using Matrix = System.Numerics.Matrix3x2;
-using Texture2D = System.Object;
-#endif
 
 namespace FontStashSharp
 {
@@ -42,13 +29,9 @@ namespace FontStashSharp
 			LineHeight = lineHeight;
 		}
 
-#if MONOGAME || FNA || STRIDE
-		protected internal abstract FontGlyph GetGlyph(GraphicsDevice device, int codepoint, FontSystemEffect effect, int effectAmount);
-#else
-		protected internal abstract FontGlyph GetGlyph(ITexture2DManager device, int codepoint, FontSystemEffect effect, int effectAmount);
-#endif
+		protected internal abstract FontGlyph GetGlyph(GraphicsDevice device, int codepoint);
 
-		internal abstract void PreDraw(TextSource str, FontSystemEffect effect, int effectAmount, out int ascent, out int lineHeight);
+		internal abstract void PreDraw(TextSource str, out int ascent, out int lineHeight);
 
 		private void Prepare(Vector2 position, float rotation, Vector2 origin, ref Vector2 scale, out Matrix transformation)
 		{
@@ -58,13 +41,12 @@ namespace FontStashSharp
 		}
 
 		internal virtual Bounds InternalTextBounds(TextSource source, Vector2 position,
-			float characterSpacing, float lineSpacing,
-			FontSystemEffect effect, int effectAmount)
+			float characterSpacing, float lineSpacing)
 		{
 			if (source.IsNull) return Bounds.Empty;
 
 			int ascent, lineHeight;
-			PreDraw(source, effect, effectAmount, out ascent, out lineHeight);
+			PreDraw(source, out ascent, out lineHeight);
 
 			var x = position.X;
 			var y = position.Y;
@@ -91,7 +73,7 @@ namespace FontStashSharp
 					continue;
 				}
 
-				var glyph = GetGlyph(null, codepoint, effect, effectAmount);
+				var glyph = GetGlyph(null, codepoint);
 				if (glyph == null)
 				{
 					continue;
@@ -124,10 +106,9 @@ namespace FontStashSharp
 		}
 
 		public Bounds TextBounds(string text, Vector2 position, Vector2? scale = null, 
-			float characterSpacing = 0.0f, float lineSpacing = 0.0f,
-			FontSystemEffect effect = FontSystemEffect.None, int effectAmount = 0)
+			float characterSpacing = 0.0f, float lineSpacing = 0.0f)
 		{
-			var bounds = InternalTextBounds(new TextSource(text), position, characterSpacing, lineSpacing, effect, effectAmount);
+			var bounds = InternalTextBounds(new TextSource(text), position, characterSpacing, lineSpacing);
 
 			var realScale = scale ?? Utility.DefaultScale;
 			bounds.ApplyScale(realScale / RenderFontSizeMultiplicator);
@@ -135,10 +116,9 @@ namespace FontStashSharp
 		}
 
 		public Bounds TextBounds(StringBuilder text, Vector2 position, Vector2? scale = null, 
-			float characterSpacing = 0.0f, float lineSpacing = 0.0f,
-			FontSystemEffect effect = FontSystemEffect.None, int effectAmount = 0)
+			float characterSpacing = 0.0f, float lineSpacing = 0.0f)
 		{
-			var bounds = InternalTextBounds(new TextSource(text), position, characterSpacing, lineSpacing, effect, effectAmount);
+			var bounds = InternalTextBounds(new TextSource(text), position, characterSpacing, lineSpacing);
 
 			var realScale = scale ?? Utility.DefaultScale;
 			bounds.ApplyScale(realScale / RenderFontSizeMultiplicator);
@@ -146,7 +126,7 @@ namespace FontStashSharp
 		}
 
 		private List<Glyph> GetGlyphs(TextSource source, Vector2 position, Vector2 origin, Vector2? sourceScale, 
-			float characterSpacing, float lineSpacing, FontSystemEffect effect, int effectAmount)
+			float characterSpacing, float lineSpacing)
 		{
 			List<Glyph> result = new List<Glyph>();
 			if (source.IsNull) return result;
@@ -157,7 +137,7 @@ namespace FontStashSharp
 			Prepare(position, 0, origin, ref scale, out transformation);
 
 			int ascent, lineHeight;
-			PreDraw(source, effect, effectAmount, out ascent, out lineHeight);
+			PreDraw(source, out ascent, out lineHeight);
 
 			var pos = new Vector2(0, ascent);
 
@@ -181,7 +161,7 @@ namespace FontStashSharp
 				}
 				else
 				{
-					var glyph = GetGlyph(null, codepoint, effect, effectAmount);
+					var glyph = GetGlyph(null, codepoint);
 					if (glyph != null)
 					{
 						if (prevGlyph != null)
@@ -222,15 +202,13 @@ namespace FontStashSharp
 
 		public List<Glyph> GetGlyphs(string text, Vector2 position,
 			Vector2 origin = default(Vector2), Vector2? scale = null,
-			float characterSpacing = 0.0f, float lineSpacing = 0.0f,
-			FontSystemEffect effect = FontSystemEffect.None, int effectAmount = 0) =>
-			GetGlyphs(new TextSource(text), position, origin, scale, characterSpacing, lineSpacing, effect, effectAmount);
+			float characterSpacing = 0.0f, float lineSpacing = 0.0f) =>
+			GetGlyphs(new TextSource(text), position, origin, scale, characterSpacing, lineSpacing);
 
 		public List<Glyph> GetGlyphs(StringBuilder text, Vector2 position,
 			Vector2 origin = default(Vector2), Vector2? scale = null,
-			float characterSpacing = 0.0f, float lineSpacing = 0.0f,
-			FontSystemEffect effect = FontSystemEffect.None, int effectAmount = 0) =>
-			GetGlyphs(new TextSource(text), position, origin, scale, characterSpacing, lineSpacing, effect, effectAmount);
+			float characterSpacing = 0.0f, float lineSpacing = 0.0f) =>
+			GetGlyphs(new TextSource(text), position, origin, scale, characterSpacing, lineSpacing);
 
 
 		[Obsolete("Use GetGlyphs")]
@@ -252,41 +230,30 @@ namespace FontStashSharp
 		}
 
 		public Vector2 MeasureString(string text, Vector2? scale = null, 
-			float characterSpacing = 0.0f, float lineSpacing = 0.0f,
-			FontSystemEffect effect = FontSystemEffect.None, int effectAmount = 0)
+			float characterSpacing = 0.0f, float lineSpacing = 0.0f)
 		{
-			var bounds = TextBounds(text, Utility.Vector2Zero, scale, characterSpacing, lineSpacing, effect, effectAmount);
+			var bounds = TextBounds(text, Utility.Vector2Zero, scale, characterSpacing, lineSpacing);
 			return new Vector2(bounds.X2, bounds.Y2);
 		}
 
 		public Vector2 MeasureString(StringBuilder text, Vector2? scale = null, 
-			float characterSpacing = 0.0f, float lineSpacing = 0.0f,
-			FontSystemEffect effect = FontSystemEffect.None, int effectAmount = 0)
+			float characterSpacing = 0.0f, float lineSpacing = 0.0f)
 		{
-			var bounds = TextBounds(text, Utility.Vector2Zero, scale, characterSpacing, lineSpacing, effect, effectAmount);
+			var bounds = TextBounds(text, Utility.Vector2Zero, scale, characterSpacing, lineSpacing);
 			return new Vector2(bounds.X2, bounds.Y2);
 		}
 
 		internal abstract float GetKerning(FontGlyph glyph, FontGlyph prevGlyph);
 
-#if MONOGAME || FNA || STRIDE
 		public static Texture2D GetWhite(GraphicsDevice graphicsDevice)
-#else
-		public static Texture2D GetWhite(ITexture2DManager textureManager)
-#endif
 		{
 			if (_white != null)
 			{
 				return _white;
 			}
 
-#if MONOGAME || FNA || STRIDE
 			_white = Texture2DManager.CreateTexture(graphicsDevice, 1, 1);
 			Texture2DManager.SetTextureData(_white, new Rectangle(0, 0, 1, 1), new byte[] { 255, 255, 255, 255 });
-#else
-			_white = textureManager.CreateTexture(1, 1);
-			textureManager.SetTextureData(_white, new Rectangle(0, 0, 1, 1), new byte[] { 255, 255, 255, 255 });
-#endif
 
 			return _white;
 		}

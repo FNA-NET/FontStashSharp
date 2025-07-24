@@ -1,17 +1,7 @@
-﻿using FontStashSharp.Interfaces;
-using System;
-
-#if MONOGAME || FNA
+﻿using System;
+using FontStashSharp.Rasterizers.FreeType;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-#elif STRIDE
-using Stride.Graphics;
-using Stride.Core.Mathematics;
-using Texture2D = Stride.Graphics.Texture;
-#else
-using Texture2D = System.Object;
-using System.Drawing;
-#endif
 
 
 namespace FontStashSharp
@@ -171,19 +161,17 @@ namespace FontStashSharp
 			return true;
 		}
 
-#if MONOGAME || FNA || STRIDE
-		public void RenderGlyph(GraphicsDevice graphicsDevice, DynamicFontGlyph glyph, IFontSource fontSource, GlyphRenderer glyphRenderer, bool premultiplyAlpha, int kernelWidth, int kernelHeight)
-#else
-		public void RenderGlyph(ITexture2DManager textureManager, DynamicFontGlyph glyph, IFontSource fontSource, GlyphRenderer glyphRenderer, bool premultiplyAlpha, int kernelWidth, int kernelHeight)
-#endif
+		public void RenderGlyph(GraphicsDevice graphicsDevice, DynamicFontGlyph glyph, FreeTypeSource fontSource, int kernelWidth, int kernelHeight)
 		{
 			if (glyph.IsEmpty)
 			{
 				return;
 			}
 
+			const int cBytesPerPixel = 4;
+
 			// Render glyph to byte buffer
-			var bufferSize = glyph.Size.X * glyph.Size.Y;
+			var bufferSize = glyph.Size.X * glyph.Size.Y * cBytesPerPixel;
 			var buffer = _byteBuffer;
 
 			if ((buffer == null) || (buffer.Length < bufferSize))
@@ -204,11 +192,7 @@ namespace FontStashSharp
 			// Create the atlas texture if required
 			if (Texture == null)
 			{
-#if MONOGAME || FNA || STRIDE
 				Texture = Texture2DManager.CreateTexture(graphicsDevice, Width, Height);
-#else
-				Texture = textureManager.CreateTexture(Width, Height);
-#endif
 			}
 
 			// Erase an area where we are going to place a glyph
@@ -227,36 +211,18 @@ namespace FontStashSharp
 				eraseArea.Height = Height - eraseArea.Y;
 			}
 
-#if MONOGAME || FNA || STRIDE
 			Texture2DManager.SetTextureData(Texture, eraseArea, colorBuffer);
-#else
-			textureManager.SetTextureData(Texture, eraseArea, colorBuffer);
-#endif
 
 			fontSource.RasterizeGlyphBitmap(glyph.Id,
 				glyph.FontSize,
 				buffer,
-				glyph.EffectAmount + glyph.EffectAmount * glyph.Size.X,
-				glyph.Size.X - glyph.EffectAmount * 2,
-				glyph.Size.Y - glyph.EffectAmount * 2,
-				glyph.Size.X);
-
-			var glyphRenderOptions = new GlyphRenderOptions
-			{
-				Effect = glyph.Effect,
-				EffectAmount = glyph.EffectAmount,
-				Size = glyph.Size,
-				PremultiplyAlpha = premultiplyAlpha
-			};
-
-			glyphRenderer(buffer, colorBuffer, glyphRenderOptions);
+				0,
+				glyph.Size.X,
+				glyph.Size.Y,
+				glyph.Size.X * cBytesPerPixel);
 
 			// Render glyph to texture
-#if MONOGAME || FNA || STRIDE
-			Texture2DManager.SetTextureData(Texture, glyph.TextureRectangle, colorBuffer);
-#else
-			textureManager.SetTextureData(Texture, glyph.TextureRectangle, colorBuffer);
-#endif
+			Texture2DManager.SetTextureData(Texture, glyph.TextureRectangle, buffer);
 		}
 	}
 }

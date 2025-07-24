@@ -1,17 +1,7 @@
 ﻿using System.Collections.Generic;
 using FontStashSharp.Interfaces;
-
-#if MONOGAME || FNA
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-#elif STRIDE
-using Stride.Core.Mathematics;
-using Stride.Graphics;
-#else
-using System.Drawing;
-using System.Numerics;
-using Color = FontStashSharp.FSColor;
-#endif
 
 namespace FontStashSharp.RichText
 {
@@ -417,8 +407,6 @@ namespace FontStashSharp.RichText
 			Draw(position, color, rotation, origin, scale, layerDepth, horizontalAlignment);
 		}
 
-#if MONOGAME || FNA || STRIDE
-
 		public void Draw(SpriteBatch batch, Vector2 position, Color color,
 			float rotation = 0, Vector2 origin = default(Vector2), Vector2? scale = null, 
 			float layerDepth = 0.0f, TextHorizontalAlignment horizontalAlignment = TextHorizontalAlignment.Left)
@@ -427,8 +415,6 @@ namespace FontStashSharp.RichText
 			renderer.Batch = batch;
 			Draw(renderer, position, color, rotation, origin, scale, layerDepth, horizontalAlignment);
 		}
-
-#endif
 
 		private void InvalidateLayout()
 		{

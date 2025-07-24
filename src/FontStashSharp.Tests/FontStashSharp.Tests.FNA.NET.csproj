@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>net8.0-windows</TargetFrameworks>
+    <OutputType>Library</OutputType>
+    <RootNamespace>FontStashSharp.Tests</RootNamespace>
+    <AssemblyName>FontStashSharp.Tests</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\**\*.*" />
+  </ItemGroup>  
+
+  <ItemGroup>
+    <PackageReference Include="FNA.NET" Version="2.1.2.2506" />
+    <PackageReference Include="NUnit" Version="4.2.2" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
+  </ItemGroup>  
+
+  <ItemGroup>
+    <ProjectReference Include="..\FontStashSharp\FontStashSharp.FNA.NET.csproj" />
+  </ItemGroup>  
+</Project>

@@ -1,29 +1,20 @@
-using FontStashSharp.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using FontStashSharp.Rasterizers.StbTrueTypeSharp;
 using System.Runtime.InteropServices;
-
-#if MONOGAME || FNA
+using FontStashSharp.Rasterizers.FreeType;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
-#elif STRIDE
-using Stride.Core.Mathematics;
-using Stride.Graphics;
-using Texture2D = Stride.Graphics.Texture;
-#else
-using System.Drawing;
-using Texture2D = System.Object;
-#endif
+using FreeTypeSharp;
+using static FreeTypeSharp.FT_Render_Mode_;
 
 namespace FontStashSharp
 {
-	public class FontSystem : IDisposable
+	public partial class FontSystem : IDisposable
 	{
 		public const int GlyphPad = 2;
 
-		private readonly List<IFontSource> _fontSources = new List<IFontSource>();
+		private readonly List<FreeTypeSource> _fontSources = new List<FreeTypeSource>();
 		private readonly Int32Map<DynamicSpriteFont> _fonts = new Int32Map<DynamicSpriteFont>();
 		private readonly FontSystemSettings _settings;
 
@@ -31,9 +22,6 @@ namespace FontStashSharp
 
 		public int TextureWidth => _settings.TextureWidth;
 		public int TextureHeight => _settings.TextureHeight;
-
-		public bool PremultiplyAlpha => _settings.PremultiplyAlpha;
-		public GlyphRenderer GlyphRenderer => _settings.GlyphRenderer;
 
 		public float FontResolutionFactor => _settings.FontResolutionFactor;
 
@@ -46,13 +34,12 @@ namespace FontStashSharp
 		public bool UseKernings { get; set; } = true;
 		public int? DefaultCharacter { get; set; } = ' ';
 
-		internal List<IFontSource> FontSources => _fontSources;
+		internal List<FreeTypeSource> FontSources => _fontSources;
 
 		public List<FontAtlas> Atlases { get; } = new List<FontAtlas>();
 		public FontAtlas CurrentAtlas => _currentAtlas;
 
 		public event EventHandler CurrentAtlasFull;
-		private readonly IFontLoader _fontLoader;
 
 		public FontSystem(FontSystemSettings settings)
 		{
@@ -62,21 +49,6 @@ namespace FontStashSharp
 			}
 
 			_settings = settings.Clone();
-
-			if (_settings.FontLoader == null)
-			{
-				var loaderSettings = new StbTrueTypeSharpSettings
-				{
-					KernelWidth = _settings.KernelWidth,
-					KernelHeight = _settings.KernelHeight,
-					UseOldRasterizer = _settings.StbTrueTypeUseOldRasterizer
-				};
-				_fontLoader = new StbTrueTypeSharpLoader(loaderSettings);
-			}
-			else
-			{
-				_fontLoader = _settings.FontLoader;
-			}
 
 			UseKernings = FontSystemDefaults.UseKernings;
 			DefaultCharacter = FontSystemDefaults.DefaultCharacter;
@@ -108,15 +80,15 @@ namespace FontStashSharp
 			_fonts.Clear();
 		}
 
-		public void AddFont(byte[] data)
+		public void AddFont(byte[] data, FT_Render_Mode_ renderMode = FT_RENDER_MODE_NORMAL)
 		{
-			var fontSource = _fontLoader.Load(data);
+			var fontSource = FreeTypeLoader.Load(data, renderMode);
 			_fontSources.Add(fontSource);
 		}
 
-		public void AddFont(Stream stream)
+		public void AddFont(Stream stream, FT_Render_Mode_ renderMode = FT_RENDER_MODE_NORMAL)
 		{
-			AddFont(stream.ToByteArray());
+			AddFont(stream.ToByteArray(), renderMode);
 		}
 
 		public DynamicSpriteFont GetFont(float fontSize)
@@ -178,11 +150,7 @@ namespace FontStashSharp
 			return g;
 		}
 
-#if MONOGAME || FNA || STRIDE
 		private FontAtlas CreateFontAtlas(GraphicsDevice device, int textureWidth, int textureHeight)
-#else
-		private FontAtlas CreateFontAtlas(ITexture2DManager device, int textureWidth, int textureHeight)
-#endif
 		{
 			Texture2D existingTexture = null;
 			if (ExistingTexture != null && Atlases.Count == 0)
@@ -206,21 +174,13 @@ namespace FontStashSharp
 			return fontAtlas;
 		}
 
-#if MONOGAME || FNA || STRIDE
 		internal void RenderGlyphOnAtlas(GraphicsDevice device, DynamicFontGlyph glyph)
-#else
-		internal void RenderGlyphOnAtlas(ITexture2DManager device, DynamicFontGlyph glyph)
-#endif
 		{
 			var textureSize = new Point(TextureWidth, TextureHeight);
 
 			if (ExistingTexture != null)
 			{
-#if MONOGAME || FNA || STRIDE
 				textureSize = new Point(ExistingTexture.Width, ExistingTexture.Height);
-#else
-				textureSize = device.GetTextureSize(ExistingTexture);
-#endif
 			}
 
 			int gx = 0, gy = 0;
@@ -254,7 +214,7 @@ namespace FontStashSharp
 			glyph.TextureOffset.X = gx + GlyphPad;
 			glyph.TextureOffset.Y = gy + GlyphPad;
 
-			atlas.RenderGlyph(device, glyph, FontSources[glyph.FontSourceIndex], GlyphRenderer, PremultiplyAlpha, KernelWidth, KernelHeight);
+			atlas.RenderGlyph(device, glyph, FontSources[glyph.FontSourceIndex], KernelWidth, KernelHeight);
 
 			glyph.Texture = atlas.Texture;
 		}

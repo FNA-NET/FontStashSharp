@@ -1,14 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Globalization;
 using System.Reflection;
-
-#if MONOGAME || FNA
 using Microsoft.Xna.Framework;
-#elif STRIDE
-using Stride.Core.Mathematics;
-#else
-using Color = FontStashSharp.FSColor;
-#endif
 
 namespace FontStashSharp.RichText
 {
@@ -26,7 +19,6 @@ namespace FontStashSharp.RichText
 		{
 			var type = typeof(Color);
 
-#if !STRIDE
 			var colors = type.GetRuntimeProperties();
 			foreach (var c in colors)
 			{
@@ -42,23 +34,6 @@ namespace FontStashSharp.RichText
 					Name = c.Name
 				};
 			}
-#else
-			var colors = type.GetRuntimeFields();
-			foreach (var c in colors)
-			{
-				if (c.FieldType != typeof(Color))
-				{
-					continue;
-				}
-
-				var value = (Color)c.GetValue(null);
-				Colors[c.Name.ToLower()] = new ColorInfo
-				{
-					Color = value,
-					Name = c.Name
-				};
-			}
-#endif
 		}
 
 		public static string ToHexString(this Color c)

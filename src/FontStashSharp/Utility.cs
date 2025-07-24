@@ -4,21 +4,8 @@ using System;
 using System.IO;
 using System.Runtime.InteropServices;
 using FontStashSharp.Interfaces;
-
-#if MONOGAME || FNA
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-#elif STRIDE
-using Stride.Core.Mathematics;
-using Stride.Graphics;
-using Texture2D = Stride.Graphics.Texture;
-#else
-using System.Numerics;
-using System.Drawing;
-using Matrix = System.Numerics.Matrix3x2;
-using Texture2D = System.Object;
-using Color = FontStashSharp.FSColor;
-#endif
 
 
 namespace FontStashSharp
@@ -139,17 +126,9 @@ namespace FontStashSharp
 
 		public static Vector2 Transform(this Vector2 v, ref Matrix matrix)
 		{
-#if MONOGAME || FNA
 			Vector2 result;
 			Vector2.Transform(ref v, ref matrix, out result);
 			return result;
-#elif STRIDE
-			Vector4 result;
-			Vector2.Transform(ref v, ref matrix, out result);
-			return new Vector2(result.X, result.Y);
-#else
-			return Vector2.Transform(v, matrix);
-#endif
 		}
 
 		public static Vector3 TransformToVector3(this Vector2 v, ref Matrix matrix, float z)
@@ -183,13 +162,8 @@ namespace FontStashSharp
 				offsetY = position.Y - (origin.X * transformation.M12) - (origin.Y * transformation.M22);
 			}
 
-#if MONOGAME || FNA || STRIDE
 			transformation.M41 = offsetX;
 			transformation.M42 = offsetY;
-#else
-			transformation.M31 = offsetX;
-			transformation.M32 = offsetY;
-#endif
 		}
 
 		public static void DrawQuad(this IFontStashRenderer2 renderer,
@@ -199,11 +173,7 @@ namespace FontStashSharp
 			ref VertexPositionColorTexture topLeft, ref VertexPositionColorTexture topRight,
 			ref VertexPositionColorTexture bottomLeft, ref VertexPositionColorTexture bottomRight)
 		{
-#if MONOGAME || FNA || STRIDE
 			var textureSize = new Point(texture.Width, texture.Height);
-#else
-			var textureSize = renderer.TextureManager.GetTextureSize(texture);
-#endif
 
 			topLeft.Position = baseOffset.TransformToVector3(ref transformation, layerDepth);
 			topLeft.TextureCoordinate = new Vector2((float)textureRectangle.X / textureSize.X,

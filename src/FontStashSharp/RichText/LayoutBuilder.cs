@@ -2,15 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
-
-#if MONOGAME || FNA
 using Microsoft.Xna.Framework;
-#elif STRIDE
-using Stride.Core.Mathematics;
-#else
-using System.Drawing;
-using Color = FontStashSharp.FSColor;
-#endif
 
 namespace FontStashSharp.RichText
 {
@@ -37,8 +29,6 @@ namespace FontStashSharp.RichText
 		private SpriteFontBase _currentFont;
 		private int _currentVerticalOffset;
 		private TextStyle _currentTextStyle;
-		private FontSystemEffect _currentEffect;
-		private int _currentEffectAmount = 0;
 
 		public List<TextLine> Lines => _lines;
 
@@ -216,38 +206,7 @@ namespace FontStashSharp.RichText
 
 			var command = _text[i];
 
-			if (command == 'e')
-			{
-				switch (_text[i + 1])
-				{
-					case 'b':
-						_currentEffect = FontSystemEffect.Blurry;
-						_currentEffectAmount = 1;
-						break;
-					case 's':
-						_currentEffect = FontSystemEffect.Stroked;
-						_currentEffectAmount = 1;
-						break;
-					case 'd':
-						_currentEffect = FontSystemEffect.None;
-						_currentEffectAmount = 0;
-						break;
-				}
-
-				i += 2;
-
-				var p = ProcessIntegerParam(ref i);
-				if (p != null)
-				{
-					if (p.Value < 0)
-					{
-						throw new Exception($"Effect amount couldn't be negative {p.Value}");
-					}
-
-					_currentEffectAmount = p.Value;
-				}
-			}
-			else if (command == 't')
+			if (command == 't')
 			{
 				switch (_text[i + 1])
 				{
@@ -465,8 +424,6 @@ namespace FontStashSharp.RichText
 			_currentFont = _font;
 			_currentVerticalOffset = 0;
 			_currentTextStyle = TextStyle.None;
-			_currentEffect = FontSystemEffect.None;
-			_currentEffectAmount = 0;
 		}
 
 		private void StartLine(int startIndex, int? rowWidth)
@@ -588,8 +545,6 @@ namespace FontStashSharp.RichText
 							var textChunk = new TextChunk(_currentFont, t, new Point(c.X, c.Y), startPos)
 							{
 								Style = _currentTextStyle,
-								Effect = _currentEffect,
-								EffectAmount = _currentEffectAmount,
 							};
 							chunk = textChunk;
 							break;

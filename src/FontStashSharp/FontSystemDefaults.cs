@@ -1,5 +1,4 @@
 ﻿using System;
-using FontStashSharp.Interfaces;
 
 namespace FontStashSharp
 {
@@ -41,7 +40,6 @@ namespace FontStashSharp
 			}
 		}
 
-		public static bool PremultiplyAlpha { get; set; } = true;
 		public static bool DisableAntialiasing { get; set; } = false;
 
 		public static float FontResolutionFactor
@@ -88,15 +86,8 @@ namespace FontStashSharp
 			}
 		}
 
-		public static bool StbTrueTypeUseOldRasterizer { get; set; }
-
-		/// <summary>
-		/// Font Rasterizer. If set to null then default rasterizer(StbTrueTypeSharp) is used.
-		/// </summary>
-		public static IFontLoader FontLoader { get; set; }
-
 		public static bool UseKernings { get; set; } = true;
-		public static int? DefaultCharacter { get; set; } = ' ';
+		public static int? DefaultCharacter { get; set; } = '�';
 
 		public static int TextStyleLineHeight { get; set; } = 2;
 	}

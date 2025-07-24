@@ -1,28 +1,9 @@
 ﻿using System;
-using FontStashSharp.Interfaces;
-
-#if MONOGAME || FNA
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-#elif STRIDE
-using Stride.Core.Mathematics;
-using Stride.Graphics;
-using Texture2D = Stride.Graphics.Texture;
-#else
-using System.Drawing;
-using System.Numerics;
-using Texture2D = System.Object;
-#endif
 
 namespace FontStashSharp
 {
-	public enum FontSystemEffect
-	{
-		None,
-		Blurry,
-		Stroked
-	}
-
 	public class FontSystemSettings
 	{
 		private int _textureWidth = 1024, _textureHeight = 1024;
@@ -60,10 +41,6 @@ namespace FontStashSharp
 				_textureHeight = value;
 			}
 		}
-
-		public bool PremultiplyAlpha { get; set; } = true;
-
-		public GlyphRenderer GlyphRenderer { get; set; } = GlyphRenderers.Default;
 
 		public float FontResolutionFactor
 		{
@@ -109,8 +86,6 @@ namespace FontStashSharp
 			}
 		}
 
-		public bool StbTrueTypeUseOldRasterizer { get; set; }
-
 		/// <summary>
 		/// Use existing texture for storing glyphs
 		/// If this is set, then TextureWidth & TextureHeight are ignored
@@ -122,21 +97,13 @@ namespace FontStashSharp
 		/// </summary>
 		public Rectangle ExistingTextureUsedSpace { get; set; }
 
-		/// <summary>
-		/// Font Rasterizer. If set to null then default rasterizer(StbTrueTypeSharp) is used.
-		/// </summary>
-		public IFontLoader FontLoader { get; set; }
-
 		public FontSystemSettings()
 		{
 			TextureWidth = FontSystemDefaults.TextureWidth;
 			TextureHeight = FontSystemDefaults.TextureHeight;
-			PremultiplyAlpha = FontSystemDefaults.PremultiplyAlpha;
 			FontResolutionFactor = FontSystemDefaults.FontResolutionFactor;
 			KernelWidth = FontSystemDefaults.KernelWidth;
 			KernelHeight = FontSystemDefaults.KernelHeight;
-			StbTrueTypeUseOldRasterizer = FontSystemDefaults.StbTrueTypeUseOldRasterizer;
-			FontLoader = FontSystemDefaults.FontLoader;
 		}
 
 		public FontSystemSettings Clone()
@@ -145,15 +112,11 @@ namespace FontStashSharp
 			{
 				TextureWidth = TextureWidth,
 				TextureHeight = TextureHeight,
-				PremultiplyAlpha = PremultiplyAlpha,
-				GlyphRenderer = GlyphRenderer,
 				FontResolutionFactor = FontResolutionFactor,
 				KernelWidth = KernelWidth,
 				KernelHeight = KernelHeight,
-				StbTrueTypeUseOldRasterizer = StbTrueTypeUseOldRasterizer,
 				ExistingTexture = ExistingTexture,
 				ExistingTextureUsedSpace = ExistingTextureUsedSpace,
-				FontLoader = FontLoader
 			};
 		}
 	}

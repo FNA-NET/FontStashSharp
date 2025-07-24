@@ -1,20 +1,7 @@
 using FontStashSharp.Interfaces;
 using System;
-
-#if MONOGAME || FNA
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-#elif STRIDE
-using Stride.Core.Mathematics;
-using Stride.Graphics;
-using Texture2D = Stride.Graphics.Texture;
-#else
-using System.Drawing;
-using System.Numerics;
-using Matrix = System.Numerics.Matrix3x2;
-using Texture2D = System.Object;
-using Color = FontStashSharp.FSColor;
-#endif
 
 namespace FontStashSharp.RichText
 {
@@ -57,7 +44,7 @@ namespace FontStashSharp.RichText
 		}
 
 		public void DrawText(string text, SpriteFontBase font, Vector2 pos, Color color, 
-			TextStyle textStyle, FontSystemEffect effect, int effectAmount)
+			TextStyle textStyle)
 		{
 			if (string.IsNullOrEmpty(text))
 			{
@@ -68,12 +55,12 @@ namespace FontStashSharp.RichText
 			if (_renderer != null)
 			{
 				font.DrawText(_renderer, text, pos, color, _rotation, default(Vector2), _scale, _layerDepth, 
-					textStyle: textStyle, effect: effect, effectAmount: effectAmount);
+					textStyle: textStyle);
 			}
 			else
 			{
 				font.DrawText(_renderer2, text, pos, color, _rotation, default(Vector2), _scale, _layerDepth,
-					textStyle: textStyle, effect: effect, effectAmount: effectAmount);
+					textStyle: textStyle);
 			}
 		}
 
