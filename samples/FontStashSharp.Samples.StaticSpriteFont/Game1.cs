@@ -1,22 +1,7 @@
 ﻿using System;
-
-#if MONOGAME || FNA
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-#if ANDROID
-using System;
-using Microsoft.Xna.Framework.GamerServices;
-#endif
-#elif STRIDE
-using System.Threading.Tasks;
-using Stride.Engine;
-using Stride.Games;
-using Stride.Graphics;
-using Stride.Core.Mathematics;
-using Stride.Input;
-using Texture2D = Stride.Graphics.Texture;
-#endif
 
 namespace FontStashSharp.Samples
 {
@@ -37,9 +22,7 @@ namespace FontStashSharp.Samples
 	{
 		private const int LineSpacing = 10;
 
-#if !STRIDE
 		private readonly GraphicsDeviceManager _graphics;
-#endif
 
 		public static Game1 Instance { get; private set; }
 		
@@ -71,7 +54,6 @@ namespace FontStashSharp.Samples
 		{
 			Instance = this;
 
-#if MONOGAME || FNA
 			_graphics = new GraphicsDeviceManager(this)
 			{
 				PreferredBackBufferWidth = 1200,
@@ -79,31 +61,15 @@ namespace FontStashSharp.Samples
 			};
 
 			Window.AllowUserResizing = true;
-#endif
 
 			IsMouseVisible = true;
 		}
-
-#if STRIDE
-		public override void ConfirmRenderingSettings(bool gameCreation)
-		{
-			base.ConfirmRenderingSettings(gameCreation);
-
-			GraphicsDeviceManager.PreferredBackBufferWidth = 1200;
-			GraphicsDeviceManager.PreferredBackBufferHeight = 800;
-			GraphicsDeviceManager.PreferredColorSpace = ColorSpace.Gamma;
-		}
-#endif
 
 		/// <summary>
 		/// LoadContent will be called once per game and is the place to load
 		/// all of your content.
 		/// </summary>
-#if !STRIDE
 		protected override void LoadContent()
-#else
-		protected override Task LoadContent()
-#endif
 		{
 			// Create a new SpriteBatch, which can be used to draw textures.
 			_spriteBatch = new SpriteBatch(GraphicsDevice);
@@ -114,19 +80,10 @@ namespace FontStashSharp.Samples
 					fileName => assembly.OpenResourceStream("FontStashSharp.Samples.StaticSpriteFont.Fonts." + fileName),
 					GraphicsDevice);
 
-#if MONOGAME || FNA
 			_white = new Texture2D(GraphicsDevice, 1, 1);
 			_white.SetData(new[] { Color.White });
-#elif STRIDE
-			_white = Texture2D.New2D(GraphicsDevice, 1, 1, false, PixelFormat.R8G8B8A8_UNorm_SRgb, TextureFlags.ShaderResource);
-			_white.SetData(GraphicsContext.CommandList, new[] { Color.White } );
-#endif
 
 			GC.Collect();
-
-#if STRIDE
-			return base.LoadContent();
-#endif
 		}
 
 		protected override void Update(GameTime gameTime)
@@ -232,18 +189,8 @@ namespace FontStashSharp.Samples
 		/// <param name="gameTime">Provides a snapshot of timing values.</param>
 		protected override void Draw(GameTime gameTime)
 		{
-#if MONOGAME || FNA
 			GraphicsDevice.Clear(Color.CornflowerBlue);
 			TimeSpan total = gameTime.TotalGameTime;
-#elif STRIDE
-			// Clear screen
-			GraphicsContext.CommandList.Clear(GraphicsDevice.Presenter.BackBuffer, Color.CornflowerBlue);
-			GraphicsContext.CommandList.Clear(GraphicsDevice.Presenter.DepthStencilBuffer, DepthStencilClearOptions.DepthBuffer | DepthStencilClearOptions.Stencil);
-
-			// Set render target
-			GraphicsContext.CommandList.SetRenderTargetAndViewport(GraphicsDevice.Presenter.DepthStencilBuffer, GraphicsDevice.Presenter.BackBuffer);
-			TimeSpan total = gameTime.Total;
-#endif
 
 
 			Vector2 scale = _animatedScaling
@@ -251,11 +198,7 @@ namespace FontStashSharp.Samples
 				: Vector2.One;
 			
 			// TODO: Add your drawing code here
-#if MONOGAME || FNA
 			_spriteBatch.Begin();
-#elif STRIDE
-			_spriteBatch.Begin(GraphicsContext);
-#endif
 
 			Vector2 cursor = Vector2.Zero;
 
@@ -271,11 +214,7 @@ namespace FontStashSharp.Samples
 			DrawString("Left-Justified", ref columnCursor, Alignment.Left, new Vector2(.75f) * scale);
 
 
-#if !STRIDE
 			var width = GraphicsDevice.Viewport.Width;
-#else
-			var width = GraphicsDevice.Presenter.BackBuffer.Width;
-#endif
 
 			columnCursor = new Vector2(width/2f, cursor.Y);
 			DrawString("Centered", ref columnCursor, Alignment.Center, new Vector2(1) * scale);

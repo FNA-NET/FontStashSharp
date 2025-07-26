@@ -81,19 +81,7 @@ namespace FontStashSharp.RichText
 			++i;
 
 			var command = _text[i];
-			if (command == 'e')
-			{
-				switch (_text[i + 1])
-				{
-					case 'b':
-					case 's':
-					case 'd':
-						break;
-					default:
-						return false;
-				}
-			}
-			else if (command == 't')
+			if (command == 't')
 			{
 				switch (_text[i + 1])
 				{

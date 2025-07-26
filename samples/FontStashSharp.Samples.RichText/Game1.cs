@@ -2,25 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using FontStashSharp.RichText;
-
-#if MONOGAME || FNA
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-#if ANDROID
-using System;
-using Microsoft.Xna.Framework.GamerServices;
-#endif
-#elif STRIDE
-using System.Threading.Tasks;
-using Stride.Engine;
-using Stride.Games;
-using Stride.Graphics;
-using Stride.Core.Mathematics;
-using Stride.Input;
-using Texture2D = Stride.Graphics.Texture;
-using StbImageSharp;
-#endif
 
 namespace FontStashSharp.Samples
 {
@@ -37,14 +21,12 @@ namespace FontStashSharp.Samples
 			"E=mc/v[-8]2/n/vdMass–energy equivalence.",
 			"A small tree: /i[mangrove1.png]",
 			"A small /c[red]tree: /v[8]/i[mangrove1.png]/vd/cd/tuand some text",
-			"/ebThis /es2is the /edfirst line. This is the second line. This is the third line.",
-			"/ebThis /es2is the /edfirst line. This /es2is the /edsecond line. This is the third line.",
-			"/ebThis /es2is the /edfirst line. This /es2is the /edsecond line. This is the third line.",
+			"This is the first line. This is the second line. This is the third line.",
+			"This is the first line. This is the second line. This is the third line.",
+			"This is the first line. This is the second line. This is the third line.",
 		};
 
-#if !STRIDE
 		private readonly GraphicsDeviceManager _graphics;
-#endif
 
 		public static Game1 Instance { get; private set; }
 
@@ -60,7 +42,6 @@ namespace FontStashSharp.Samples
 		{
 			Instance = this;
 
-#if MONOGAME || FNA
 			_graphics = new GraphicsDeviceManager(this)
 			{
 				PreferredBackBufferWidth = 1200,
@@ -68,31 +49,15 @@ namespace FontStashSharp.Samples
 			};
 
 			Window.AllowUserResizing = true;
-#endif
 
 			IsMouseVisible = true;
 		}
-
-#if STRIDE
-		public override void ConfirmRenderingSettings(bool gameCreation)
-		{
-			base.ConfirmRenderingSettings(gameCreation);
-
-			GraphicsDeviceManager.PreferredBackBufferWidth = 1200;
-			GraphicsDeviceManager.PreferredBackBufferHeight = 800;
-			GraphicsDeviceManager.PreferredColorSpace = ColorSpace.Gamma;
-		}
-#endif
 
 		/// <summary>
 		/// LoadContent will be called once per game and is the place to load
 		/// all of your content.
 		/// </summary>
-#if !STRIDE
 		protected override void LoadContent()
-#else
-		protected override Task LoadContent()
-#endif
 		{
 			// Create a new SpriteBatch, which can be used to draw textures.
 			_spriteBatch = new SpriteBatch(GraphicsDevice);
@@ -127,39 +92,10 @@ namespace FontStashSharp.Samples
 				// it is used to cache textures
 				if (!_textureCache.TryGetValue(p, out texture))
 				{
-#if MONOGAME || FNA
 					using (var stream = File.OpenRead(Path.Combine(Utility.AssetsDirectory, p)))
 					{
 						texture = Texture2D.FromStream(GraphicsDevice, stream);
 					}
-#else
-					ImageResult image;
-					using (var stream = File.OpenRead(Path.Combine(Utility.AssetsDirectory, p)))
-					{
-						image = ImageResult.FromStream(stream, ColorComponents.RedGreenBlueAlpha);
-					}
-
-					// Premultiply Alpha
-					unsafe
-					{
-						fixed (byte* b = image.Data)
-						{
-							byte* ptr = b;
-							for (var i = 0; i < image.Data.Length; i += 4, ptr += 4)
-							{
-								var falpha = ptr[3] / 255.0f;
-								ptr[0] = (byte)(ptr[0] * falpha);
-								ptr[1] = (byte)(ptr[1] * falpha);
-								ptr[2] = (byte)(ptr[2] * falpha);
-							}
-						}
-					}
-
-					// Create texture
-					texture = Texture2D.New2D(GraphicsDevice, image.Width, image.Height, false, PixelFormat.R8G8B8A8_UNorm, TextureFlags.ShaderResource);
-					var context = new GraphicsContext(texture.GraphicsDevice);
-					texture.SetData(context.CommandList, image.Data, 0, 0, new ResourceRegion(0, 0, 0, image.Width, image.Height, 1));
-#endif
 
 					_textureCache[p] = texture;
 				}
@@ -167,7 +103,6 @@ namespace FontStashSharp.Samples
 				return new TextureFragment(texture);
 			};
 
-			FontSystemDefaults.StbTrueTypeUseOldRasterizer = true;
 			var fontSystem = new FontSystem();
 			fontSystem.AddFont(File.ReadAllBytes(Path.Combine(Utility.AssetsDirectory, @"Roboto-Regular.ttf")));
 
@@ -178,19 +113,10 @@ namespace FontStashSharp.Samples
 				VerticalSpacing = 8,
 			};
 
-#if MONOGAME || FNA
 			_white = new Texture2D(GraphicsDevice, 1, 1);
 			_white.SetData(new[] { Color.White });
-#elif STRIDE
-			_white = Texture2D.New2D(GraphicsDevice, 1, 1, false, PixelFormat.R8G8B8A8_UNorm_SRgb, TextureFlags.ShaderResource);
-			_white.SetData(GraphicsContext.CommandList, new[] { Color.White });
-#endif
 
 			GC.Collect();
-
-#if STRIDE
-			return base.LoadContent();
-#endif
 		}
 
 		protected override void Update(GameTime gameTime)
@@ -229,36 +155,18 @@ namespace FontStashSharp.Samples
 		/// <param name="gameTime">Provides a snapshot of timing values.</param>
 		protected override void Draw(GameTime gameTime)
 		{
-#if MONOGAME || FNA
 			GraphicsDevice.Clear(Color.CornflowerBlue);
 			TimeSpan total = gameTime.TotalGameTime;
-#elif STRIDE
-			// Clear screen
-			GraphicsContext.CommandList.Clear(GraphicsDevice.Presenter.BackBuffer, Color.CornflowerBlue);
-			GraphicsContext.CommandList.Clear(GraphicsDevice.Presenter.DepthStencilBuffer, DepthStencilClearOptions.DepthBuffer | DepthStencilClearOptions.Stencil);
-
-			// Set render target
-			GraphicsContext.CommandList.SetRenderTargetAndViewport(GraphicsDevice.Presenter.DepthStencilBuffer, GraphicsDevice.Presenter.BackBuffer);
-			TimeSpan total = gameTime.Total;
-#endif
 
 			// TODO: Add your drawing code here
-#if MONOGAME || FNA
 			_spriteBatch.Begin();
-#elif STRIDE
-			_spriteBatch.Begin(GraphicsContext);
-#endif
 			_spriteBatch.DrawString(_richText.Font, "Press 'Space' to switch between strings.", Vector2.Zero, Color.White);
 
 			Vector2 scale = _animatedScaling
 				? new Vector2(1 + .25f * (float)Math.Sin(total.TotalSeconds * .5f))
 				: Vector2.One;
 
-#if !STRIDE
 			var viewportSize = new Point(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
-#else
-			var viewportSize = new Point(GraphicsDevice.Presenter.BackBuffer.Width, GraphicsDevice.Presenter.BackBuffer.Height);
-#endif
 
 			_richText.Width = null;
 			_richText.Height = null;

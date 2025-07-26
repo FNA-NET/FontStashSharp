@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>FontStashSharp.Samples.StaticSpriteFont</RootNamespace>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <EmbeddedResource Include="Fonts\*.*" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Compile Include="..\FontStashSharp.Samples.DynamicSpriteFont\KeyboardUtils.cs" Link="KeyboardUtils.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FNA.NET" Version="2.1.2.2506" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\FontStashSharp\FontStashSharp.FNA.NET.csproj" />
+  </ItemGroup>  
+</Project>
