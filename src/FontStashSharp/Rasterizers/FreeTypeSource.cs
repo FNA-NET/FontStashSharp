@@ -106,7 +106,7 @@ namespace FontStashSharp.Rasterizers.FreeType
 
 		private void LoadGlyph(int glyphId)
 		{
-			var err = FT_Load_Glyph(_faceRec, (uint)glyphId, FT_LOAD_DEFAULT | FT_LOAD_TARGET_NORMAL | FT_LOAD_COLOR);
+			var err = FT_Load_Glyph(_faceRec, (uint)glyphId, FT_LOAD_DEFAULT | FT_LOAD_COLOR);
 			if (err != FT_Error.FT_Err_Ok)
 				throw new FreeTypeException(err);
 		}
@@ -159,7 +159,7 @@ namespace FontStashSharp.Rasterizers.FreeType
 
 			fixed (byte* bptr = buffer)
 			{
-				for (var y = 0; y < outHeight; ++y)
+				for (var y = 0; y < Math.Min(outHeight, ftbmp.rows); ++y)
 				{
 					var pos = (y * outStride) + startIndex;
 					byte* dst = bptr + pos;
@@ -167,7 +167,7 @@ namespace FontStashSharp.Rasterizers.FreeType
 
 					if (ftbmp.pixel_mode == FT_Pixel_Mode_.FT_PIXEL_MODE_GRAY)
 					{
-						for (var x = 0; x < outWidth; ++x)
+						for (var x = 0; x < Math.Min(outWidth, ftbmp.width); ++x)
 						{
 							var c = *src++;
 							*dst++ = c;
@@ -178,7 +178,7 @@ namespace FontStashSharp.Rasterizers.FreeType
 					}
 					else if (ftbmp.pixel_mode == FT_Pixel_Mode_.FT_PIXEL_MODE_MONO)
 					{
-						for (var x = 0; x < outWidth; x += 8)
+						for (var x = 0; x < Math.Min(outWidth, ftbmp.width); x += 8)
 						{
 							var bits = *src++;
 							for (int b = 0; b < 8; b++)
@@ -193,7 +193,7 @@ namespace FontStashSharp.Rasterizers.FreeType
 					}
 					else if (ftbmp.pixel_mode == FT_Pixel_Mode_.FT_PIXEL_MODE_LCD)
 					{
-						for (var x = 0; x < outWidth; ++x)
+						for (var x = 0; x < Math.Min(outWidth, ftbmp.width); ++x)
 						{
 							var r = *src++;
 							var g = *src++;
@@ -206,7 +206,7 @@ namespace FontStashSharp.Rasterizers.FreeType
 					}
 					else if (ftbmp.pixel_mode == FT_Pixel_Mode_.FT_PIXEL_MODE_BGRA)
 					{
-						for (var x = 0; x < outWidth; ++x)
+						for (var x = 0; x < Math.Min(outWidth, ftbmp.width); ++x)
 						{
 							var b = *src++;
 							var g = *src++;
