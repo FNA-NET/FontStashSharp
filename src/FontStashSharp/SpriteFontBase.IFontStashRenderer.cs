@@ -97,9 +97,10 @@ namespace FontStashSharp
 					pos.X += GetKerning(glyph, prevGlyph);
 				}
 
+				color = source.GetNextColor();
+
 				if (!glyph.IsEmpty)
 				{
-					color = source.GetNextColor();
 					firstColor = color;
 
 					var p = pos + new Vector2(glyph.RenderOffset.X, glyph.RenderOffset.Y);
