@@ -1,0 +1,7 @@
+{
+  "profiles": {
+    "FontStashSharp.Samples.DynamicSpriteFont.Uwp": {
+      "commandName": "MsixPackage"
+    }
+  }
+}

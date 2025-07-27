@@ -1,10 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFrameworks>net8.0;net9.0-windows10.0.26100.0</TargetFrameworks>
     <PackageId>FNA.NET.FontStashSharp</PackageId>
     <AssemblyName>FNA.NET.FontStashSharp</AssemblyName>
     <Description>FontStashSharp for FNA.NET</Description>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net9.0-windows10.0.26100.0'">
+    <UseUwp>true</UseUwp>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -21,8 +25,13 @@
     <PackageReference Include="StbImageSharp" Version="2.30.15" />
   </ItemGroup>  
 
-  <ItemGroup>
-    <PackageReference Include="FNA.NET" Version="2.1.2.2506" PrivateAssets="All" />
+	<ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
+    <PackageReference Include="FNA.NET" Version="2.1.2.2506" />
     <PackageReference Include="FreeTypeSharp" Version="3.0.1" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)' == 'net9.0-windows10.0.26100.0'">
+    <PackageReference Include="FNA.NET.UWP" Version="2.1.2.2506" />
+    <PackageReference Include="FreeTypeSharp.UWP" Version="3.0.1" />
   </ItemGroup>
 </Project>
