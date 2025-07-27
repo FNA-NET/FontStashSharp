@@ -10,7 +10,7 @@ namespace FontStashSharp.RichText
 	{
 		private readonly RichTextSettings _richTextSettings;
 		public const int NewLineWidth = 0;
-		public const string Commands = "cefistv";
+		public const string Commands = "cfistv";
 
 		private string _text;
 		private SpriteFontBase _font;

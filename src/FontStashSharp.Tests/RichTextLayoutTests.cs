@@ -7,9 +7,9 @@ namespace FontStashSharp.Tests
 	[TestFixture]
 	public class RichTextLayoutTests
 	{
-		[TestCase("First line./nSecond line.", 2, 1, 149, 64)]
-		[TestCase("This is /c[red]colored /c[#00f0fa]ext, /cdcolor could be set either /c[lightGreen]by name or /c[#fa9000ff]by hex code.", 1, 6, 844, 32)]
-		[TestCase("/esT/eb[2]e/edxt", 1, 3, 52, 32)]
+		[TestCase("First line./nSecond line.", 2, 1, 147, 64)]
+		[TestCase("This is /c[red]colored /c[#00f0fa]ext, /cdcolor could be set either /c[lightGreen]by name or /c[#fa9000ff]by hex code.", 1, 6, 833, 32)]
+		[TestCase("/c[red]T/c[blue]ext", 1, 2, 51, 32)]
 		public void BasicTests(string text, int linesCount, int chunksInFirstLineCount, int width, int height)
 		{
 			var fontSystem = TestsEnvironment.DefaultFontSystem;
@@ -31,7 +31,7 @@ namespace FontStashSharp.Tests
 		[Test]
 		public void NumericParametersTest()
 		{
-			const string text = "/v[-8]Test/v4Test/vd/Test/Test/Test";
+			const string text = "/v[-8]Test/v4Test/vdTestTestTest";
 
 			var fontSystem = TestsEnvironment.DefaultFontSystem;
 
@@ -44,16 +44,12 @@ namespace FontStashSharp.Tests
 
 			Assert.That(richTextLayout.Lines.Count, Is.EqualTo(1));
 			var chunks = richTextLayout.Lines[0].Chunks;
-			Assert.That(chunks.Count, Is.EqualTo(5));
+			Assert.That(chunks.Count, Is.EqualTo(3));
 			Assert.That(chunks[0].VerticalOffset, Is.EqualTo(-8));
 			Assert.That(chunks[1].VerticalOffset, Is.EqualTo(4));
 
 			var textChunk = (TextChunk)chunks[2];
 			Assert.That(textChunk.VerticalOffset, Is.EqualTo(0));
-
-			textChunk = (TextChunk)chunks[3];
-
-			textChunk = (TextChunk)chunks[4];
 		}
 
 		[Test]
@@ -112,10 +108,10 @@ namespace FontStashSharp.Tests
 			var lines = richTextLayout.Lines;
 
 			Assert.That(lines.Count, Is.EqualTo(2));
-			Assert.That(lines[1].Chunks.Count, Is.EqualTo(3));
-			Assert.That(lines[1].Chunks[2], Is.InstanceOf<TextChunk>());
-			var textChunk = (TextChunk)lines[1].Chunks[2];
-			Assert.That(textChunk.Text, Is.EqualTo("second li..."));
+			Assert.That(lines[1].Chunks.Count, Is.EqualTo(1));
+			Assert.That(lines[1].Chunks[0], Is.InstanceOf<TextChunk>());
+			var textChunk = (TextChunk)lines[1].Chunks[0];
+			Assert.That(textChunk.Text, Is.EqualTo("This is the second li..."));
 		}
 
 		[Test]
