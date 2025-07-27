@@ -1,9 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>net8.0;net9.0-windows10.0.26100.0</TargetFrameworks>
-    <PackageId>FNA.NET.FontStashSharp</PackageId>
     <AssemblyName>FNA.NET.FontStashSharp</AssemblyName>
-    <Description>FontStashSharp for FNA.NET</Description>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
@@ -12,13 +10,20 @@
   </PropertyGroup>
 
   <PropertyGroup>
+    <PackageId>FNA.NET.FontStashSharp</PackageId>
+    <Description>FontStashSharp for FNA.NET</Description>
     <Authors>FNA.NET Team</Authors>
     <Product>FontStashSharp</Product>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageLicenseExpression>Zlib</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/FNA-NET/FontStashSharp.FNA</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/FNA-NET/FontStashSharp</PackageProjectUrl>
     <RootNamespace>FontStashSharp</RootNamespace>
     <Version>2.0.0</Version>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="\"/>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Cyotek.Drawing.BitmapFont" Version="2.0.4" />
