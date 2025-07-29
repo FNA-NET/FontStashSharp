@@ -2,7 +2,7 @@
 using FontStashSharp.Rasterizers.FreeType;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-
+using FreeTypeSharp;
 
 namespace FontStashSharp
 {
@@ -161,7 +161,25 @@ namespace FontStashSharp
 			return true;
 		}
 
-		public void RenderGlyph(GraphicsDevice graphicsDevice, DynamicFontGlyph glyph, FreeTypeSource fontSource)
+		public void RasterizeGlyphBitmap(DynamicFontGlyph glyph, FreeTypeSource fontSource, FontStyle fontStyle)
+		{
+			if (glyph.IsEmpty)
+			{
+				return;
+			}
+
+			fontSource.RasterizeGlyphBitmap(glyph.Id, glyph.FontSize, fontStyle);
+
+			if (fontStyle.HasFlag(FontStyle.Italic) && !fontSource.HasStyleFlag(FT_STYLE_FLAG.FT_STYLE_FLAG_ITALIC))
+			{
+				fontSource.GetCurrentGlyph(out var glyphRec);
+				// Set new advance and size for italic glyph
+				glyph.XAdvance = (int)glyphRec.advance.x >> 6;
+				glyph.Size = new Point((int)glyphRec.bitmap.width, (int)glyphRec.bitmap.rows);
+			}
+		}
+
+		public void RenderGlyph(GraphicsDevice graphicsDevice, DynamicFontGlyph glyph, FreeTypeSource fontSource, FontStyle fontStyle)
 		{
 			if (glyph.IsEmpty)
 			{
@@ -210,13 +228,13 @@ namespace FontStashSharp
 
 			Texture2DManager.SetTextureData(Texture, eraseArea, _eraseBuffer);
 
-			fontSource.RasterizeGlyphBitmap(glyph.Id,
+			fontSource.FetchGlyphBitmapBuffer(glyph.Id,
 				glyph.FontSize,
 				pixelBuffer,
 				0,
 				glyph.Size.X,
 				glyph.Size.Y,
-				glyph.Size.X * cBytesPerPixel);
+				glyph.Size.X * cBytesPerPixel, fontStyle);
 
 			// Render glyph to texture
 			Texture2DManager.SetTextureData(Texture, glyph.TextureRectangle, pixelBuffer);

@@ -102,7 +102,7 @@ namespace FontStashSharp.Rasterizers.FreeType
 				throw new FreeTypeException(err);
 		}
 
-		private void GetCurrentGlyph(out FT_GlyphSlotRec_ glyph)
+		public void GetCurrentGlyph(out FT_GlyphSlotRec_ glyph)
 		{
 			glyph = Marshal.PtrToStructure<FT_GlyphSlotRec_>((IntPtr)_faceRec->glyph);
 		}
@@ -137,13 +137,8 @@ namespace FontStashSharp.Rasterizers.FreeType
 			// Y = 0.2126*R + 0.7152*G + 0.0722*B. Computed on the integer pipe.
 			return (byte)((4732UL * r + 46871UL * g + 13933UL * b) >> 16);
 		}
-		public unsafe void RasterizeGlyphBitmap(int glyphId, float fontSize, byte[] buffer, int startIndex, int outWidth, int outHeight, int outStride)
+		public void FetchGlyphBitmapBuffer(int glyphId, float fontSize, byte[] buffer, int startIndex, int outWidth, int outHeight, int outStride, FontStyle fontStyle)
 		{
-			SetPixelSizes(0, fontSize);
-			LoadGlyph(glyphId);
-
-			FT_Render_Glyph(_faceRec->glyph, _renderMode);
-
 			FT_GlyphSlotRec_ glyph;
 			GetCurrentGlyph(out glyph);
 			var ftbmp = glyph.bitmap;
@@ -211,6 +206,37 @@ namespace FontStashSharp.Rasterizers.FreeType
 					}
 				}
 			}
+		}
+
+		public void RasterizeGlyphBitmap(int glyphId, float fontSize, FontStyle fontStyle)
+		{
+			SetPixelSizes(0, fontSize);
+
+			if (fontStyle.HasFlag(FontStyle.Italic) && !HasStyleFlag(FT_STYLE_FLAG.FT_STYLE_FLAG_ITALIC))
+			{
+				FT_Matrix_ italicMatrix = new FT_Matrix_
+				{
+					xx = 0x10000,
+					xy = (nint)(0.3f * 0x10000),
+					yx = 0,
+					yy = 0x10000
+				};
+				FT_Set_Transform(_faceRec, &italicMatrix, default);
+			}
+			else
+				FT_Set_Transform(_faceRec, default, default);
+
+			LoadGlyph(glyphId);
+
+			FT_Render_Glyph(_faceRec->glyph, _renderMode);
+
+			if (fontStyle.HasFlag(FontStyle.Bold) && !HasStyleFlag(FT_STYLE_FLAG.FT_STYLE_FLAG_BOLD))
+				FT_Bitmap_Embolden(_libraryHandle, &_faceRec->glyph->bitmap, 64, 0); // 1 Pixel bold
+		}
+
+		public bool HasStyleFlag(FT_STYLE_FLAG flag)
+		{
+			return (_faceRec->style_flags & (int)flag) != 0;
 		}
 	}
 }

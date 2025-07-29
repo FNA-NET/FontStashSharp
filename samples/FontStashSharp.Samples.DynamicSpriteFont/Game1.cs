@@ -215,8 +215,12 @@ namespace FontStashSharp.Samples
 
 			// Render some text
 
-			_font = _fontSystem.GetFont(18);
-			DrawString("你好世界", ref cursor, Alignment.Left, scale);
+			_font = _fontSystem.GetFont(18, FontStyle.Regular);
+			DrawString("ABCDEFG abcdefg 1234567890 你好世界😄", ref cursor, Alignment.Left, scale);
+			_font = _fontSystem.GetFont(18, FontStyle.Bold);
+			DrawString("ABCDEFG abcdefg 1234567890 你好世界😄", ref cursor, Alignment.Left, scale);
+			_font = _fontSystem.GetFont(18, FontStyle.Italic);
+			DrawString("ABCDEFG abcdefg 1234567890 你好世界😄", ref cursor, Alignment.Left, scale);
 			DrawString("The quick いろは brown\nfox にほへ jumps over\nt🙌h📦e l👏a👏zy dog adfasoqiw yraldh ald halwdha ldjahw dlawe havbx get872rq", ref cursor, Alignment.Left, scale);
 
 			_font = _fontSystem.GetFont(30);

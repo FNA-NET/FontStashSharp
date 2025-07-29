@@ -88,11 +88,11 @@ namespace FontStashSharp
 			AddFont(stream.ToByteArray(), renderMode);
 		}
 
-		public DynamicSpriteFont GetFont(float fontSize)
+		public DynamicSpriteFont GetFont(float fontSize, FontStyle fontStyle = FontStyle.Regular)
 		{
-			var intSize = fontSize.FloatAsInt();
+			var key = HashCode.Combine(fontSize.FloatAsInt(), (int)fontStyle);
 			DynamicSpriteFont result;
-			if (_fonts.TryGetValue(intSize, out result))
+			if (_fonts.TryGetValue(key, out result))
 			{
 				return result;
 			}
@@ -107,8 +107,8 @@ namespace FontStashSharp
 			int ascent, descent, lineHeight;
 			fontSource.GetMetricsForSize(fontSize, out ascent, out descent, out lineHeight);
 
-			result = new DynamicSpriteFont(this, fontSize, lineHeight);
-			_fonts[intSize] = result;
+			result = new DynamicSpriteFont(this, fontSize, lineHeight, fontStyle);
+			_fonts[key] = result;
 			return result;
 		}
 
@@ -171,7 +171,7 @@ namespace FontStashSharp
 			return fontAtlas;
 		}
 
-		internal void RenderGlyphOnAtlas(GraphicsDevice device, DynamicFontGlyph glyph)
+		internal void RenderGlyphOnAtlas(GraphicsDevice device, DynamicFontGlyph glyph, FontStyle fontStyle)
 		{
 			var textureSize = new Point(TextureWidth, TextureHeight);
 
@@ -180,16 +180,17 @@ namespace FontStashSharp
 				textureSize = new Point(ExistingTexture.Width, ExistingTexture.Height);
 			}
 
-			int gx = 0, gy = 0;
-			var gw = glyph.Size.X + GlyphPad * 2;
-			var gh = glyph.Size.Y + GlyphPad * 2;
-
 			// If CurrentAtlas is null create a new one
 			if (CurrentAtlas == null)
 			{
 				SetFontAtlas(CreateFontAtlas(device, textureSize.X, textureSize.Y));
 			}
 			var atlas = CurrentAtlas;
+			atlas.RasterizeGlyphBitmap(glyph, FontSources[glyph.FontSourceIndex], fontStyle);
+			int gx = 0, gy = 0;
+			var gw = glyph.Size.X + GlyphPad * 2;
+			var gh = glyph.Size.Y + GlyphPad * 2;
+
 			if (!atlas.AddRect(gw, gh, ref gx, ref gy))
 			{
 				CurrentAtlasFull?.Invoke(this, EventArgs.Empty);
@@ -211,7 +212,7 @@ namespace FontStashSharp
 			glyph.TextureOffset.X = gx + GlyphPad;
 			glyph.TextureOffset.Y = gy + GlyphPad;
 
-			atlas.RenderGlyph(device, glyph, FontSources[glyph.FontSourceIndex]);
+			atlas.RenderGlyph(device, glyph, FontSources[glyph.FontSourceIndex], fontStyle);
 
 			glyph.Texture = atlas.Texture;
 		}

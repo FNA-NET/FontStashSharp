@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using FreeTypeSharp;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -12,8 +13,9 @@ namespace FontStashSharp
 		private FontMetrics[] IndexedMetrics;
 
 		public FontSystem FontSystem { get; private set; }
+		public FontStyle FontStyle { get; private set; }
 
-		internal DynamicSpriteFont(FontSystem system, float size, int lineHeight) : base(size, lineHeight)
+		internal DynamicSpriteFont(FontSystem system, float size, int lineHeight, FontStyle fontStyle) : base(size, lineHeight)
 		{
 			if (system == null)
 			{
@@ -21,6 +23,7 @@ namespace FontStashSharp
 			}
 
 			FontSystem = system;
+			FontStyle = fontStyle;
 			RenderFontSizeMultiplicator = FontSystem.FontResolutionFactor;
 		}
 
@@ -54,6 +57,11 @@ namespace FontStashSharp
 			var gw = x1 - x0;
 			var gh = y1 - y0;
 
+			if (FontStyle.HasFlag(FontStyle.Bold) && !font.HasStyleFlag(FT_STYLE_FLAG.FT_STYLE_FLAG_BOLD))
+			{
+				gw += 1;
+			}
+
 			glyph = new DynamicFontGlyph
 			{
 				Codepoint = codepoint,
@@ -81,7 +89,7 @@ namespace FontStashSharp
 			if (device == null || glyph.Texture != null)
 				return glyph;
 
-			FontSystem.RenderGlyphOnAtlas(device, glyph);
+			FontSystem.RenderGlyphOnAtlas(device, glyph, FontStyle);
 
 			return glyph;
 		}
