@@ -90,16 +90,7 @@ namespace FontStashSharp.Rasterizers.FreeType
 
 		private void SetPixelSizes(float width, float height)
 		{
-			FT_Size_RequestRec_ request = new FT_Size_RequestRec_()
-			{
-				type = FT_Size_Request_Type_.FT_SIZE_REQUEST_TYPE_REAL_DIM,
-				width = (IntPtr)(width * 64), // Convert pixel size to 26.6 fractional points
-				height = (IntPtr)(height * 64),
-				horiResolution = 72,
-				vertResolution = 72
-			};
-
-			var err = FT_Request_Size(_faceRec, &request);
+			var err = FT_Set_Char_Size(_faceRec, (nint)(width * 64), (nint)(height * 64), 0, 0);
 			if (err != FT_Error.FT_Err_Ok)
 				throw new FreeTypeException(err);
 		}

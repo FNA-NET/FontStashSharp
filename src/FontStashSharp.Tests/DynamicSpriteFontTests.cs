@@ -111,9 +111,9 @@ namespace FontStashSharp.Tests
 			}
 		}
 
-		[TestCase("Tuesday", 45, 4, true, new int[] { 2, 10, 21, 18, 42, 19, 62, 19, 87, 11, 110, 19, 132, 18 })]
-		[TestCase("Tuesday", 45, 4, false, new int[] { 2, 10, 24, 18, 45, 19, 65, 19, 90, 11, 113, 19, 135, 18 })]
-		[TestCase("Tuesday", 45.5f, 4, true, new int[] { 2, 10, 21, 18, 42, 19, 62, 19, 86, 12, 109, 19, 132, 18 })]
+		[TestCase("Tuesday", 45, 4, true, new int[] { 2, 14, 26, 23, 52, 24, 76, 24, 104, 15, 132, 24, 159, 24 })]
+		[TestCase("Tuesday", 45, 4, false, new int[] { 2, 14, 29, 23, 55, 24, 79, 24, 107, 15, 135, 24, 162, 24 })]
+		[TestCase("Tuesday", 45.5f, 4, true, new int[] { 2, 13, 27, 23, 53, 24, 77, 24, 106, 14, 133, 24, 161, 24 })]
 		public void DrawText(string text, float size, int characterSpacing, bool useKernings, int[] glyphPos)
 		{
 			var settings = new FontSystemSettings();
@@ -131,8 +131,8 @@ namespace FontStashSharp.Tests
 			Assert.That(glyphPos.Length, Is.EqualTo(renderer.Calls.Count * 2));
 			for (var i = 0; i < renderer.Calls.Count; i++)
 			{
-				Assert.That(glyphPos[i * 2], Is.EqualTo((int)renderer.Calls[i].Pos.X));
-				Assert.That(glyphPos[i * 2 + 1], Is.EqualTo((int)renderer.Calls[i].Pos.Y));
+				Assert.That((int)renderer.Calls[i].Pos.X, Is.EqualTo(glyphPos[i * 2]));
+				Assert.That((int)renderer.Calls[i].Pos.Y, Is.EqualTo(glyphPos[i * 2 + 1]));
 			}
 		}
 	}

@@ -7,9 +7,9 @@ namespace FontStashSharp.Tests
 	[TestFixture]
 	public class RichTextLayoutTests
 	{
-		[TestCase("First line./nSecond line.", 2, 1, 147, 64)]
-		[TestCase("This is /c[red]colored /c[#00f0fa]ext, /cdcolor could be set either /c[lightGreen]by name or /c[#fa9000ff]by hex code.", 1, 6, 833, 32)]
-		[TestCase("/c[red]T/c[blue]ext", 1, 2, 51, 32)]
+		[TestCase("First line./nSecond line.", 2, 1, 174, 74)]
+		[TestCase("This is /c[red]colored /c[#00f0fa]ext, /cdcolor could be set either /c[lightGreen]by name or /c[#fa9000ff]by hex code.", 1, 6, 979, 37)]
+		[TestCase("/c[red]T/c[blue]ext", 1, 2, 61, 37)]
 		public void BasicTests(string text, int linesCount, int chunksInFirstLineCount, int width, int height)
 		{
 			var fontSystem = TestsEnvironment.DefaultFontSystem;
@@ -25,7 +25,7 @@ namespace FontStashSharp.Tests
 			{
 				Assert.That(richTextLayout.Lines[0].Chunks.Count, Is.EqualTo(chunksInFirstLineCount));
 			}
-			Assert.That(new Point(width, height), Is.EqualTo(richTextLayout.Size));
+			Assert.That(richTextLayout.Size, Is.EqualTo(new Point(width, height)));
 		}
 
 		[Test]
@@ -63,7 +63,7 @@ namespace FontStashSharp.Tests
 			{
 				Text = text,
 				Font = fontSystem.GetFont(32),
-				Width = 300
+				Width = 325
 			};
 
 			Assert.That(richTextLayout.Lines.Count, Is.EqualTo(3));
@@ -99,7 +99,7 @@ namespace FontStashSharp.Tests
 			{
 				Font = fontSystem.GetFont(32),
 				Text = "This is the first line. This is the second line. This is the third line.",
-				Width = 260,
+				Width = 305,
 				Height = 100,
 				VerticalSpacing = 8,
 				AutoEllipsisMethod = AutoEllipsisMethod.Character
