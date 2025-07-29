@@ -25,9 +25,6 @@ namespace FontStashSharp
 
 		public float FontResolutionFactor => _settings.FontResolutionFactor;
 
-		public int KernelWidth => _settings.KernelWidth;
-		public int KernelHeight => _settings.KernelHeight;
-
 		public Texture2D ExistingTexture => _settings.ExistingTexture;
 		public Rectangle ExistingTextureUsedSpace => _settings.ExistingTextureUsedSpace;
 
@@ -214,7 +211,7 @@ namespace FontStashSharp
 			glyph.TextureOffset.X = gx + GlyphPad;
 			glyph.TextureOffset.Y = gy + GlyphPad;
 
-			atlas.RenderGlyph(device, glyph, FontSources[glyph.FontSourceIndex], KernelWidth, KernelHeight);
+			atlas.RenderGlyph(device, glyph, FontSources[glyph.FontSourceIndex]);
 
 			glyph.Texture = atlas.Texture;
 		}

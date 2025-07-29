@@ -8,7 +8,6 @@ namespace FontStashSharp
 	{
 		private int _textureWidth = 1024, _textureHeight = 1024;
 		private float _fontResolutionFactor = 1.0f;
-		private int _kernelWidth = 0, _kernelHeight = 0;
 
 		public int TextureWidth
 		{
@@ -56,36 +55,6 @@ namespace FontStashSharp
 			}
 		}
 
-		public int KernelWidth
-		{
-			get => _kernelWidth;
-
-			set
-			{
-				if (value < 0)
-				{
-					throw new ArgumentOutOfRangeException(nameof(value), value, "This cannot be smaller than 0");
-				}
-
-				_kernelWidth = value;
-			}
-		}
-
-		public int KernelHeight
-		{
-			get => _kernelHeight;
-
-			set
-			{
-				if (value < 0)
-				{
-					throw new ArgumentOutOfRangeException(nameof(value), value, "This cannot be smaller than 0");
-				}
-
-				_kernelHeight = value;
-			}
-		}
-
 		/// <summary>
 		/// Use existing texture for storing glyphs
 		/// If this is set, then TextureWidth & TextureHeight are ignored
@@ -102,8 +71,6 @@ namespace FontStashSharp
 			TextureWidth = FontSystemDefaults.TextureWidth;
 			TextureHeight = FontSystemDefaults.TextureHeight;
 			FontResolutionFactor = FontSystemDefaults.FontResolutionFactor;
-			KernelWidth = FontSystemDefaults.KernelWidth;
-			KernelHeight = FontSystemDefaults.KernelHeight;
 		}
 
 		public FontSystemSettings Clone()
@@ -113,8 +80,6 @@ namespace FontStashSharp
 				TextureWidth = TextureWidth,
 				TextureHeight = TextureHeight,
 				FontResolutionFactor = FontResolutionFactor,
-				KernelWidth = KernelWidth,
-				KernelHeight = KernelHeight,
 				ExistingTexture = ExistingTexture,
 				ExistingTextureUsedSpace = ExistingTextureUsedSpace,
 			};

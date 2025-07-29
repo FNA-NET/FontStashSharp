@@ -6,7 +6,6 @@ namespace FontStashSharp
 	{
 		private static int _textureWidth = 1024, _textureHeight = 1024;
 		private static float _fontResolutionFactor = 1.0f;
-		private static int _kernelWidth = 0, _kernelHeight = 0;
 
 		public static int TextureWidth
 		{
@@ -53,36 +52,6 @@ namespace FontStashSharp
 				}
 
 				_fontResolutionFactor = value;
-			}
-		}
-
-		public static int KernelWidth
-		{
-			get => _kernelWidth;
-
-			set
-			{
-				if (value < 0)
-				{
-					throw new ArgumentOutOfRangeException(nameof(value), value, "This cannot be smaller than 0");
-				}
-
-				_kernelWidth = value;
-			}
-		}
-
-		public static int KernelHeight
-		{
-			get => _kernelHeight;
-
-			set
-			{
-				if (value < 0)
-				{
-					throw new ArgumentOutOfRangeException(nameof(value), value, "This cannot be smaller than 0");
-				}
-
-				_kernelHeight = value;
 			}
 		}
 

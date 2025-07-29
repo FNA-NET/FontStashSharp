@@ -161,7 +161,7 @@ namespace FontStashSharp
 			return true;
 		}
 
-		public void RenderGlyph(GraphicsDevice graphicsDevice, DynamicFontGlyph glyph, FreeTypeSource fontSource, int kernelWidth, int kernelHeight)
+		public void RenderGlyph(GraphicsDevice graphicsDevice, DynamicFontGlyph glyph, FreeTypeSource fontSource)
 		{
 			if (glyph.IsEmpty)
 			{
