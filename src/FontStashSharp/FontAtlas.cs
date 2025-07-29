@@ -8,8 +8,8 @@ namespace FontStashSharp
 {
 	public class FontAtlas
 	{
-		byte[] _byteBuffer;
-		byte[] _colorBuffer;
+		byte[] _pixelBuffer;
+		byte[] _eraseBuffer;
 
 		public int Width { get; private set; }
 
@@ -170,23 +170,21 @@ namespace FontStashSharp
 
 			const int cBytesPerPixel = 4;
 
-			// Render glyph to byte buffer
+			// Render glyph to pixel buffer(rgba32)
 			var bufferSize = glyph.Size.X * glyph.Size.Y * cBytesPerPixel;
-			var buffer = _byteBuffer;
+			var pixelBuffer = _pixelBuffer;
 
-			if ((buffer == null) || (buffer.Length < bufferSize))
+			if ((pixelBuffer == null) || (pixelBuffer.Length < bufferSize))
 			{
-				buffer = new byte[bufferSize];
-				_byteBuffer = buffer;
+				pixelBuffer = new byte[bufferSize];
+				_pixelBuffer = pixelBuffer;
 			}
-			Array.Clear(buffer, 0, bufferSize);
+			Array.Clear(pixelBuffer, 0, bufferSize);
 
-			var colorBuffer = _colorBuffer;
-			var colorBufferSize = (glyph.Size.X + FontSystem.GlyphPad * 2) * (glyph.Size.Y + FontSystem.GlyphPad * 2) * 4;
-			if ((colorBuffer == null) || (colorBuffer.Length < colorBufferSize))
+			var eraseBufferSize = (glyph.Size.X + FontSystem.GlyphPad * 2) * (glyph.Size.Y + FontSystem.GlyphPad * 2) * 4;
+			if ((_eraseBuffer == null) || (_eraseBuffer.Length < eraseBufferSize))
 			{
-				colorBuffer = new byte[colorBufferSize];
-				_colorBuffer = colorBuffer;
+				_eraseBuffer = new byte[eraseBufferSize];
 			}
 
 			// Create the atlas texture if required
@@ -196,7 +194,6 @@ namespace FontStashSharp
 			}
 
 			// Erase an area where we are going to place a glyph
-			Array.Clear(colorBuffer, 0, colorBufferSize);
 			var eraseArea = glyph.TextureRectangle;
 			eraseArea.X = Math.Max(eraseArea.X - FontSystem.GlyphPad, 0);
 			eraseArea.Y = Math.Max(eraseArea.Y - FontSystem.GlyphPad, 0);
@@ -211,18 +208,18 @@ namespace FontStashSharp
 				eraseArea.Height = Height - eraseArea.Y;
 			}
 
-			Texture2DManager.SetTextureData(Texture, eraseArea, colorBuffer);
+			Texture2DManager.SetTextureData(Texture, eraseArea, _eraseBuffer);
 
 			fontSource.RasterizeGlyphBitmap(glyph.Id,
 				glyph.FontSize,
-				buffer,
+				pixelBuffer,
 				0,
 				glyph.Size.X,
 				glyph.Size.Y,
 				glyph.Size.X * cBytesPerPixel);
 
 			// Render glyph to texture
-			Texture2DManager.SetTextureData(Texture, glyph.TextureRectangle, buffer);
+			Texture2DManager.SetTextureData(Texture, glyph.TextureRectangle, pixelBuffer);
 		}
 	}
 }
