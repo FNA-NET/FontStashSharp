@@ -56,7 +56,7 @@ namespace FontStashSharp
 		}
 
 		public static bool UseKernings { get; set; } = true;
-		public static int? DefaultCharacter { get; set; } = '�';
+		public static int? DefaultCharacter { get; set; } = '□';
 
 		public static int TextStyleLineHeight { get; set; } = 2;
 	}

@@ -84,6 +84,8 @@ namespace FontStashSharp.Samples
 			// Simple
 			_fontSystem = new FontSystem();
 			_fontSystem.AddFont(File.ReadAllBytes(@"Fonts/DroidSans.ttf"));
+			_fontSystem.AddSystemFont("simsun");
+			_fontSystem.AddSystemFont("seguiemj");
 			_fontSystem.AddFont(File.ReadAllBytes(@"Fonts/DroidSansJapanese.ttf"));
 			_fontSystem.AddFont(File.ReadAllBytes(@"Fonts/Symbola-Emoji.ttf"));
 

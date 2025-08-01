@@ -20,6 +20,8 @@ namespace FontStashSharp
 
 		private FontAtlas _currentAtlas;
 
+		private readonly SystemFonts _systemFonts; 
+
 		public int TextureWidth => _settings.TextureWidth;
 		public int TextureHeight => _settings.TextureHeight;
 
@@ -46,6 +48,7 @@ namespace FontStashSharp
 			}
 
 			_settings = settings.Clone();
+			_systemFonts = new SystemFonts();
 
 			UseKernings = FontSystemDefaults.UseKernings;
 			DefaultCharacter = FontSystemDefaults.DefaultCharacter;
@@ -75,6 +78,17 @@ namespace FontStashSharp
 
 			SetFontAtlas(null);
 			_fonts.Clear();
+		}
+
+		public void AddSystemFont(string fileName, FT_Render_Mode_ renderMode = FT_RENDER_MODE_NORMAL)
+		{
+			var data = _systemFonts.GetFontData(fileName);
+
+			if (data.Length > 0)
+			{
+				var fontSource = FreeTypeLoader.Load(data, renderMode);
+				_fontSources.Add(fontSource);
+			}
 		}
 
 		public void AddFont(byte[] data, FT_Render_Mode_ renderMode = FT_RENDER_MODE_NORMAL)
