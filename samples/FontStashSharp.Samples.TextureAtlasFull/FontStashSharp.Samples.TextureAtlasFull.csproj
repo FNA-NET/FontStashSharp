@@ -1,13 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
   </PropertyGroup>
   
-  <ItemGroup>
-    <PackageReference Include="FNA.NET" Version="2.1.2.2506" />
-  </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\..\src\FontStashSharp\FontStashSharp.FNA.NET.csproj" />
   </ItemGroup>  

@@ -20,10 +20,6 @@
       this property should not be disabled if custom PRI resources are needed by the application.      
     -->
     <EnableXamlCompilerTargetsForUwpApps>false</EnableXamlCompilerTargetsForUwpApps>
-    <!--
-      This is required to fix mouse issue, which happens when hardware mouse is disabled(Game.IsMouseVisible = false)
-    -->
-    <Win32Resource>SDL2-WinRTResources.res</Win32Resource>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(BuildingInsideVisualStudio)'=='true'">
@@ -41,10 +37,6 @@
 
   <ItemGroup>
     <RdXmlFile Include="rd.xml" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="FNA.NET.UWP" Version="2.1.2.2506" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net8.0;net9.0-windows10.0.26100.0</TargetFrameworks>
+    <TargetFrameworks>net9.0;net9.0-windows10.0.26100.0</TargetFrameworks>
     <AssemblyName>FNA.NET.FontStashSharp</AssemblyName>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
@@ -18,7 +18,7 @@
     <PackageLicenseExpression>Zlib</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/FNA-NET/FontStashSharp</PackageProjectUrl>
     <RootNamespace>FontStashSharp</RootNamespace>
-    <Version>2.0.0</Version>
+    <Version>2.1.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -28,15 +28,14 @@
   <ItemGroup>
     <PackageReference Include="Cyotek.Drawing.BitmapFont" Version="2.0.4" />
     <PackageReference Include="StbImageSharp" Version="2.30.15" />
+    <PackageReference Include="FNA.NET" Version="2.2.0.2602" />
   </ItemGroup>  
 
-	<ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
-    <PackageReference Include="FNA.NET" Version="2.1.2.2506" />
-    <PackageReference Include="FreeTypeSharp" Version="3.0.1" />
+	<ItemGroup Condition="'$(TargetFramework)' == 'net9.0'">
+    <PackageReference Include="FreeTypeSharp" Version="3.1.0" />
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'net9.0-windows10.0.26100.0'">
-    <PackageReference Include="FNA.NET.UWP" Version="2.1.2.2506" />
-    <PackageReference Include="FreeTypeSharp.UWP" Version="3.0.1" />
+    <PackageReference Include="FreeTypeSharp.UWP" Version="3.1.0" />
   </ItemGroup>
 </Project>

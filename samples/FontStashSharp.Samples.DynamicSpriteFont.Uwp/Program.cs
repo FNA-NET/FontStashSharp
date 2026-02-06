@@ -1,5 +1,5 @@
 ﻿using System;
-using SDL2;
+using SDL3;
 
 namespace FontStashSharp.Samples
 {
@@ -15,8 +15,7 @@ namespace FontStashSharp.Samples
         {
             realArgs = args;
             SDL.SDL_SetHint("SDL_WINRT_HANDLE_BACK_BUTTON", "1");
-            SDL.SDL_main_func mainFunction = FakeMain;
-            SDL.SDL_WinRTRunApp(mainFunction, IntPtr.Zero);
+            SDL.SDL_RunApp(0, IntPtr.Zero, FakeMain, IntPtr.Zero);
         }
 
         static string[] realArgs;
